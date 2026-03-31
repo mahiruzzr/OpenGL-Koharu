@@ -1,0 +1,11 @@
+Model Information:
+* title:	[Blue Archive] -Koharu- | CB (Default emotion)
+* source:	https://sketchfab.com/3d-models/blue-archive-koharu-cb-default-emotion-5d97f1aca1494968b4508bae44f88475
+* author:	VückyZ (https://sketchfab.com/vuckyz123)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "[Blue Archive] -Koharu- | CB (Default emotion)" (https://sketchfab.com/3d-models/blue-archive-koharu-cb-default-emotion-5d97f1aca1494968b4508bae44f88475) by VückyZ (https://sketchfab.com/vuckyz123) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
