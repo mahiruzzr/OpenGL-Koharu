@@ -57,7 +57,20 @@ void main()
    vec3 norm = normalize(Normal);
    vec3 lightDirNorm = normalize(-lightDir); // 注意這裡是 -lightDir，因為我們想要從光源指向片段的方向
    float diff = max(dot(norm, lightDirNorm), 0.0);
-   vec3 diffuse = diff * lightColor;
+
+   float toonIntensity;
+
+   if(diff >0.95){
+         toonIntensity = 1.0;
+   } else if(diff > 0.5){
+         toonIntensity = 0.7;
+   }else if(diff > 0.25){
+         toonIntensity = 0.5;
+   }else{
+         toonIntensity = 0.3;
+   }
+
+   vec3 diffuse = toonIntensity * lightColor;
    
    // 5. 注意這裡！一定要用 texColor.rgb (只取前三個顏色通道) 來跟 vec3 相乘
    vec3 result = (ambient + diffuse) * texColor.rgb;

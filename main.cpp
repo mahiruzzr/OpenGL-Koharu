@@ -167,6 +167,8 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     glEnable(GL_CULL_FACE);
+
+    glEnable(GL_STENCIL_TEST);
     glCullFace(GL_BACK);
 
     glEnable(GL_BLEND);
@@ -783,6 +785,9 @@ int main() {
     ShaderProgramSource lightSource = ParseShader("/home/kiyotaka/atcoder/QtOpengl/res/shaders/Light.shader");
     unsigned int lightShader = CreateShader(lightSource.VertexSource, lightSource.FragmentSource);
     glUseProgram(lightShader);
+    ShaderProgramSource Outline = ParseShader("/home/kiyotaka/atcoder/QtOpengl/res/shaders/Outline.shader");
+    unsigned int outlineShader = CreateShader(Outline.VertexSource, Outline.FragmentSource);
+    glUseProgram(outlineShader);
     //生成紋理
     unsigned int texture1,texture2;
     glGenTextures(1, &texture1);
@@ -843,7 +848,7 @@ int main() {
 
     
     float radius = 10.0f;
-    glm :: vec3 clear_color = glm::vec3(1.0f, 0.7f, 0.99f);
+    glm :: vec3 clear_color = glm::vec3(1.0f, 0.6f, 0.96f);
     while (!glfwWindowShouldClose(window)) {
         
         ImGui_ImplOpenGL3_NewFrame();
@@ -856,7 +861,7 @@ int main() {
         ImGui::ColorEdit3("Background Color", glm::value_ptr(clear_color));
         ImGui::End();
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
         glUseProgram(shader);
         processInput(window);
@@ -892,9 +897,26 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, texture2);
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+*/
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-*/      koharu.Draw(shader);
+        glCullFace(GL_BACK);
+        koharu.Draw(shader);
+        glUseProgram(outlineShader);
+        glUniformMatrix4fv(glGetUniformLocation(outlineShader, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(glGetUniformLocation(outlineShader, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(outlineShader, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        
+        glDisable(GL_CULL_FACE);
+        koharu.Draw(outlineShader);
+        glEnable(GL_CULL_FACE);
+
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glEnable(GL_CULL_FACE);
 
         glUseProgram(lightShader);
         glBindVertexArray(lightVAO);
