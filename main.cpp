@@ -139,6 +139,22 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     cameraFront = glm::normalize(front);
 }
+void change_size(GLFWwindow*window, int width, int height){
+    if(height==0){
+        height =1;
+    }
+    glViewport(0,0,width,height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    float aspect = (float)height / (float)width;
+    if(height >= width){
+        glOrtho(-400.0f,400.0f,-300.0f*aspect,300.0f*aspect,1000.0f,-1000.0f);
+    }else{
+        glOrtho(-400.0f/aspect,400.0f/aspect,-300.0f,300.0f,1000.0f,-1000.0f);
+    }
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+}
 int main() {
     if (!glfwInit()) return -1;
 
@@ -869,6 +885,7 @@ int main() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         //glfwSetCursorPosCallback(window, mouse_callback);
+        glfwSetFramebufferSizeCallback(window, change_size);
 
         glm::mat4 model = glm :: mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
