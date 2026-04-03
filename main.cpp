@@ -155,6 +155,33 @@ void change_size(GLFWwindow*window, int width, int height){
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
+unsigned int quadVAO = 0;
+unsigned int quadVBO;
+void renderQuad()
+{
+    if (quadVAO == 0)
+    {
+        float quadVertices[] = {
+            // positions        // texture Coords
+            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+             1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+             1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        };
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    }
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+}
 int main() {
     if (!glfwInit()) return -1;
 
@@ -178,7 +205,7 @@ int main() {
     }
 
     cout << "OpenGL 版本: " << glGetString(GL_VERSION) << endl;
-    Model koharu("/home/kiyotaka/atcoder/QtOpengl/model/koharu/blue_archive_-koharu-__cb_default_emotion/scene.gltf");
+    Model koharu("/home/kiyotaka/atcoder/QtOpengl/model/koharu/blue_archive_-koharu-__cb_default_emotion (1)/scene.gltf");
 
     glEnable(GL_DEPTH_TEST);
 
@@ -758,6 +785,26 @@ int main() {
     0.0000f, -0.0500f, -0.0000f,
     0.0000f, -0.0500f, -0.0000f,
     };
+    unsigned int fbo;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    unsigned int framebuffer;
+    glGenTextures(1, &framebuffer);
+    glBindTexture(GL_TEXTURE_2D, framebuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 800, 600, 0, GL_RGB, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebuffer, 0);
+
+    unsigned int rbo;
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
+
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
     unsigned int vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -804,6 +851,10 @@ int main() {
     ShaderProgramSource Outline = ParseShader("/home/kiyotaka/atcoder/QtOpengl/res/shaders/Outline.shader");
     unsigned int outlineShader = CreateShader(Outline.VertexSource, Outline.FragmentSource);
     glUseProgram(outlineShader);
+    ShaderProgramSource fbosource = ParseShader("/home/kiyotaka/atcoder/QtOpengl/res/shaders/Fbo.shader");
+    unsigned int Fbo = CreateShader(fbosource.VertexSource, fbosource.FragmentSource);
+    glUseProgram(Fbo);
+    glUniform1i(glGetUniformLocation(Fbo, "screenTexture"), 0);
     //生成紋理
     unsigned int texture1,texture2;
     glGenTextures(1, &texture1);
@@ -851,7 +902,6 @@ int main() {
     int modelLoc = glGetUniformLocation(shader, "model");
     int viewLoc = glGetUniformLocation(shader, "view");
     int projectionLoc = glGetUniformLocation(shader, "projection");
-    std::cout << "modelLoc=" << modelLoc << " viewLoc=" << viewLoc << " projLoc=" << projectionLoc << std::endl;
     //int lightPosLoc = glGetUniformLocation(shader, "lightPos");
     glUniform1f(glGetUniformLocation(shader, "ambientStrength"), 0.4f);
     int viewPosLoc = glGetUniformLocation(shader, "viewPos");
@@ -861,12 +911,19 @@ int main() {
     glUseProgram(lightShader);
     glUniform3f(glGetUniformLocation(lightShader, "lightColor"), 1.0f, 1.0f, 1.0f);
     int lightModelLoc = glGetUniformLocation(lightShader, "model");
-
     
+
+    float gravity =9.8f;
+    float groundlevel = 1.0f;
+    float velocityY = 0.0f;
+
     float radius = 10.0f;
-    glm :: vec3 clear_color = glm::vec3(1.0f, 0.6f, 0.96f);
+    glm :: vec3 clear_color = glm::vec3(1.0, 0.7, 0.97);
     while (!glfwWindowShouldClose(window)) {
         
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glEnable(GL_DEPTH_TEST);
+
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -877,15 +934,17 @@ int main() {
         ImGui::ColorEdit3("Background Color", glm::value_ptr(clear_color));
         ImGui::End();
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
         glUseProgram(shader);
         processInput(window);
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        //glfwSetCursorPosCallback(window, mouse_callback);
+        glfwSetCursorPosCallback(window, mouse_callback);
         glfwSetFramebufferSizeCallback(window, change_size);
+
 
         glm::mat4 model = glm :: mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
@@ -899,6 +958,15 @@ int main() {
         projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
         //glm::vec3 lightPos = glm::vec3(1.6f*glm::sin(glfwGetTime()), 2.0f, 0.0f);
         glm::vec3 lightDir = glm::vec3(2.0f, -3.0f, 0.0f);
+
+        velocityY = velocityY - gravity*deltaTime;
+        float posy = velocityY*deltaTime;
+        float currntY = model[3][1];
+        if(currntY > groundlevel){
+            model = glm::translate(model, glm::vec3(0.0f, -posy, 0.0f));
+        }else{
+            model[3][1] = groundlevel;
+        }
 
         glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);
 
@@ -919,7 +987,13 @@ int main() {
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
         glCullFace(GL_BACK);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        //glDisable(GL_CULL_FACE);
         koharu.Draw(shader);
+        glEnable(GL_CULL_FACE);
+        glDisable(GL_BLEND);
+
         glUseProgram(outlineShader);
         glUniformMatrix4fv(glGetUniformLocation(outlineShader, "model"), 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(glGetUniformLocation(outlineShader, "view"), 1, GL_FALSE, glm::value_ptr(view));
@@ -929,7 +1003,7 @@ int main() {
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         
         glDisable(GL_CULL_FACE);
-        koharu.Draw(outlineShader);
+        koharu.DrawOutlinePass(outlineShader);
         glEnable(GL_CULL_FACE);
 
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -944,6 +1018,17 @@ int main() {
         glUniformMatrix4fv(glGetUniformLocation(lightShader, "projection"),1, GL_FALSE, glm::value_ptr(projection));
 
         //glDrawArrays(GL_TRIANGLE_FAN, 0, 432);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glDisable(GL_DEPTH_TEST);
+        clear_color = glm::vec3(1.0f, 0.7f, 0.97f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        glUseProgram(Fbo);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, framebuffer);
+        renderQuad();
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -951,6 +1036,8 @@ int main() {
         glfwPollEvents();
     }
     glDeleteProgram(shader);
+    glDeleteProgram(outlineShader);
+    glDeleteProgram(Fbo);
     glDeleteProgram(lightShader);
     glfwTerminate();
     return 0;

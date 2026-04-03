@@ -16,7 +16,7 @@ out float Worldy;
 void main()
 {
     TexCoords = texCoords;
-    float outlineWidth = 0.1; // 調整輪廓寬度
+    float outlineWidth = 100; // 調整輪廓寬度
 
     vec3 fatterPos = vertices + (normal * outlineWidth);
     gl_Position = projection* view* model*vec4(fatterPos, 1.0);
@@ -27,14 +27,9 @@ void main()
 layout(location = 0) out vec4 Outlinecolor;
 in vec2 TexCoords;
 
-uniform sampler2D texture_diffuse1;;
+uniform sampler2D texture_diffuse1;
 void main()
-{
-    vec4 texColor = texture(texture_diffuse1, TexCoords);
-    
-    if(texColor.a < 0.5) {
-        discard;
-    }
-   Outlinecolor = vec4(0.0f, 0.0f, 0.0f,1.0);
+{   
+        Outlinecolor = vec4(0.0f,0.0f,0.0f,1.0f);    
 }
 

@@ -26,6 +26,7 @@ void main()
 #version 330 core 
 
 layout(location = 0) out vec4 color;
+layout (location = 1) out vec4 BrightColor;
 in vec2 TexCoords;
 in vec3 Normal;
 in vec3 FragPos;
@@ -37,6 +38,7 @@ uniform float ambientStrength;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform vec3 lightDir;
+float gamma = 2.2;
 
 void main()
 {
@@ -44,7 +46,7 @@ void main()
    vec4 texColor = texture(texture_diffuse1, TexCoords);
    
    // 2. 丟棄透明像素：如果是透明背景，直接跳過不畫！(解決黑色嘴巴塊)
-   if(texColor.a < 0.01) {
+   if(texColor.a < 1.0) {
        discard;
    }
 
@@ -79,12 +81,25 @@ void main()
    float specularStrength = 0.5f;
    vec3 viewDir = normalize(viewPos - FragPos);
    vec3 reflectDir = reflect(-lightDirNorm, norm);
-   float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
-   vec3 specular = specularStrength * spec * lightColor;
+   float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16.0);
+   float toonSpec = smoothstep(0.5 - 0.01, 0.5 + 0.01, spec);
+   vec3 specular = specularStrength * toonSpec * lightColor;
    
    result += specular;
-   
+   //result = pow(result,vec3(1.0/gamma)); // Gamma校正
+
    // 7. 輸出最終顏色，並帶上它原本的透明度
    color = vec4(result, texColor.a);
+   // 計算亮度
+   float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722));
+
+   // 暫時把門檻從 1.0 降到 0.7，測試能不能抓到比較亮的部位
+   if(brightness > 0.7) {
+      BrightColor = vec4(result, 1.0);
+   } else {
+      BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
+   }
+   
+   
 }
 
