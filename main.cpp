@@ -182,6 +182,42 @@ void renderQuad()
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
 }
+class PhysicsObject{
+public:
+    float gravity = 9.8f;
+    glm::vec3 velocity;
+    float groundLevel = 1.5f;
+    glm::vec3 position;
+    glm::vec3 currentMax;
+    glm::vec3 currentMin;
+
+    PhysicsObject(const glm::mat4& model,glm::vec3 max,glm::vec3 min){
+        position = glm::vec3(model[3]);
+        velocity = glm::vec3(0.0f,0.0f,0.0f);
+        currentMax = max;
+        currentMin = min;
+    }
+    void UpdatePhysics(float deltatime ,glm::mat4& model){
+        if (position.y > groundLevel)
+        {
+          velocity.y -= gravity * deltatime;
+          position += velocity * deltatime;
+        }else{
+          position.y = groundLevel;
+          velocity.y = 0.0f;
+        }
+        model[3][0] = position.x;
+        model[3][1] = position.y;
+        model[3][2] = position.z;
+    }
+    void AABB(glm::vec3 othermax,glm::vec3 othermin){
+        if(currentMax.x > othermin.x && othermax.x > currentMin.x &&
+           currentMax.y > othermin.y && othermax.y > currentMin.y &&
+           currentMax.z > othermin.z && othermax.z > currentMin.z){
+            cout << "Collided" << endl;
+        }
+    }
+};
 int main() {
     if (!glfwInit()) return -1;
 
@@ -911,11 +947,13 @@ int main() {
     glUseProgram(lightShader);
     glUniform3f(glGetUniformLocation(lightShader, "lightColor"), 1.0f, 1.0f, 1.0f);
     int lightModelLoc = glGetUniformLocation(lightShader, "model");
-    
 
-    float gravity =9.8f;
-    float groundlevel = 1.0f;
-    float velocityY = 0.0f;
+
+    model = glm::scale(model, glm::vec3(0.00005f));
+    model = glm::rotate(model,glm::radians(180.0f),glm::vec3(1.0f,0.0f,0.0f));
+    model = glm::translate(model, glm::vec3(-18000.0f, -30000.0f, -3000.0f));
+    PhysicsObject koharu1(model,koharu.localmax,koharu.localmin);
+
 
     float radius = 10.0f;
     glm :: vec3 clear_color = glm::vec3(1.0, 0.7, 0.97);
@@ -944,29 +982,15 @@ int main() {
         lastFrame = currentFrame;
         glfwSetCursorPosCallback(window, mouse_callback);
         glfwSetFramebufferSizeCallback(window, change_size);
+        koharu1.UpdatePhysics(deltaTime,model);
 
-
-        glm::mat4 model = glm :: mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
         glm::mat4 view;
 
         view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-        model = glm::scale(model, glm::vec3(0.00005f));
-        model = glm::rotate(model,glm::radians(180.0f),glm::vec3(1.0f,0.0f,0.0f));
-        model = glm::translate(model, glm::vec3(-18000.0f, -30000.0f, -3000.0f));
-        //model = glm::rotate(model,(float)glfwGetTime()*glm::radians(-50.0f),glm::vec3(0.5f,1.0f,0.0f));
         projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
         //glm::vec3 lightPos = glm::vec3(1.6f*glm::sin(glfwGetTime()), 2.0f, 0.0f);
         glm::vec3 lightDir = glm::vec3(2.0f, -3.0f, 0.0f);
-
-        velocityY = velocityY - gravity*deltaTime;
-        float posy = velocityY*deltaTime;
-        float currntY = model[3][1];
-        if(currntY > groundlevel){
-            model = glm::translate(model, glm::vec3(0.0f, -posy, 0.0f));
-        }else{
-            model[3][1] = groundlevel;
-        }
 
         glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);
 

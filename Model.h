@@ -6,6 +6,7 @@
 #include <string>
 #include "tool/stb_image.h"
 #include "Mesh.h"
+#include<limits>
 
 // 記得在最前面 #include <stb_image.h>
 // 如果 stb_image.h 是你第一次實作，記得要在某個 .cpp 檔裡面加上 #define STB_IMAGE_IMPLEMENTATION
@@ -56,6 +57,9 @@ public:
     Model(std::string path) {
         loadModel(path);
     }
+
+    glm::vec3 localmin = glm::vec3(std::numeric_limits<float>::max());
+    glm::vec3 localmax = glm::vec3(std::numeric_limits<float>::lowest());
 
     // 繪製模型：迴圈呼叫每一個 Mesh 的 Draw
     void Draw(unsigned int shaderProgram) {
@@ -129,6 +133,13 @@ private:
         // ...
         for(unsigned int i=0;i<mesh->mNumVertices;i++){
             Vertex v;
+            glm::vec3 pos = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+            if (pos.x > localmax.x) localmax.x = pos.x;
+            if (pos.x < localmin.x) localmin.x = pos.x;
+            if (pos.y > localmax.y) localmax.y = pos.y;
+            if (pos.y < localmin.y) localmin.y = pos.y;
+            if (pos.z > localmax.z) localmax.z = pos.z;
+            if (pos.z < localmin.z) localmin.z = pos.z;
             v.Position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
             v.Normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
             if(mesh->mTextureCoords[0]){
