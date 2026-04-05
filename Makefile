@@ -5,13 +5,14 @@ CXX = g++
 EXE = main
 
 # 編譯時需要的標頭檔搜尋路徑 (-I.)
-CXXFLAGS = -I. -I./imgui -I./imgui/backends -Wall -Wformat
+CXXFLAGS = -I. -I./imgui -I./imgui/backends -I/usr/local/include -I./glad_output/include -DIMGUI_IMPL_OPENGL_LOADER_CUSTOM -Wall -Wformat
 
 # 連結時需要的外部函式庫 (-l)
-LIBS = -lGLEW -lglfw -lGL -lassimp
+LIBS = -L/usr/local/lib -lglfw -lGL -lassimp
 
 # 所有的原始碼檔案 (.cpp)
 SOURCES = main.cpp \
+          glad.c \
           imgui/imgui.cpp \
           imgui/imgui_draw.cpp \
           imgui/imgui_tables.cpp \

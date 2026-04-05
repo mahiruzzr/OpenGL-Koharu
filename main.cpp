@@ -1,4 +1,6 @@
-#include <GL/glew.h>
+#define GLEW_NO_GLU
+#define GLFW_INCLUDE_NONE
+#include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
 #define GLM_FORCE_XYZW_ONLY
@@ -139,7 +141,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     cameraFront = glm::normalize(front);
 }
-void change_size(GLFWwindow*window, int width, int height){
+/*void change_size(GLFWwindow*window, int width, int height){
     if(height==0){
         height =1;
     }
@@ -154,7 +156,7 @@ void change_size(GLFWwindow*window, int width, int height){
     }
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-}
+}*/
 unsigned int quadVAO = 0;
 unsigned int quadVBO;
 void renderQuad()
@@ -218,7 +220,60 @@ public:
         }
     }
 };
+class cursor_enter_callback{
+public:
+    GLFWcursor* hoverCursor = nullptr;
+    GLFWcursor* grabCursor = nullptr;
+    bool isMouseInWindow = false;
+
+    void load_cursors(){
+        hoverCursor = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+        
+        int width,height,channels;
+        unsigned char*data = stbi_load("/home/kiyotaka/atcoder/QtOpengl/images/swipe.png",&width,&height,&channels,4);
+        if(data){
+            GLFWimage image;
+            image.width = width;
+            image.height = height;
+            image.pixels = data;
+            grabCursor = glfwCreateCursor(&image, width/2, height/2);
+            stbi_image_free(data);
+        }else{
+            cout << "Failed to load cursor image!" << endl;
+        }
+    }
+    void on_cursor_enter(GLFWwindow* window, int entered){
+        if(entered){
+            isMouseInWindow = true;
+            glfwSetCursor(window, hoverCursor);
+        }else{
+            isMouseInWindow = false;
+            glfwSetCursor(window, nullptr);
+        }     
+    }
+    void mouse_buuton_callback(GLFWwindow*window, int button, int action, int mods){
+        if(isMouseInWindow&& button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS){
+            glfwSetCursor(window, grabCursor);
+    }else if(isMouseInWindow&& action == GLFW_RELEASE){
+            glfwSetCursor(window, hoverCursor);
+        }
+    } 
+};
+cursor_enter_callback*global_cursor_callback = nullptr;
+void c_on_cursor_enter(GLFWwindow*window, int entered){
+    if(global_cursor_callback){
+        global_cursor_callback->on_cursor_enter(window, entered);
+    }
+}
+void c_mouse_button_callback(GLFWwindow*window, int button, int action, int mods){
+    if(global_cursor_callback){
+        global_cursor_callback->mouse_buuton_callback(window, button, action, mods);
+    }
+}
 int main() {
+    setenv("XCURSOR_THEME", "Adwaita", 1);
+    setenv("XCURSOR_SIZE", "24", 1);
+    glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
     if (!glfwInit()) return -1;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -229,19 +284,29 @@ int main() {
         glfwTerminate();
         return -1;
     }
-    glfwWindowHint(GLFW_SAMPLES, 4);
-    glEnable(GL_MULTISAMPLE);
 
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
-    if (glewInit() != GLEW_OK) {
-        cout << "GLEW 初始化失敗！" << endl;
-        return -1;
+    if (!gladLoadGL(glfwGetProcAddress)) {
+    cout << "GLAD 初始化失敗！" << endl;
+    return -1;
     }
+
+    glfwWindowHint(GLFW_SAMPLES, 4);
+    glEnable(GL_MULTISAMPLE);
 
     cout << "OpenGL 版本: " << glGetString(GL_VERSION) << endl;
     Model koharu("/home/kiyotaka/atcoder/QtOpengl/model/koharu/blue_archive_-koharu-__cb_default_emotion (1)/scene.gltf");
+
+    cursor_enter_callback cursorCallback;
+    cursorCallback.load_cursors();
+    global_cursor_callback = &cursorCallback;
+
+    //glfwSetCursorEnterCallback(window, c_on_cursor_enter);
+    //glfwSetMouseButtonCallback(window, c_mouse_button_callback);
+    glfwSetCursor(window, cursorCallback.hoverCursor); 
+    cursorCallback.isMouseInWindow = true;
 
     glEnable(GL_DEPTH_TEST);
 
@@ -256,102 +321,22 @@ int main() {
     //初始化ImGui
     //------------------------------
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); 
+    ImGuiIO& io = ImGui::GetIO();
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    io.MouseDrawCursor = false;
     (void)io;
     //設置ImGui樣式
     ImGui::StyleColorsDark();
     //設置ImGui平台/渲染器綁定
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(window, false);
+    glfwSetKeyCallback(window, ImGui_ImplGlfw_KeyCallback);
+    glfwSetCharCallback(window, ImGui_ImplGlfw_CharCallback);
+    glfwSetScrollCallback(window, ImGui_ImplGlfw_ScrollCallback);
+    glfwSetMouseButtonCallback(window, ImGui_ImplGlfw_MouseButtonCallback);
     const char* glsl_version = "#version 330";
     ImGui_ImplOpenGL3_Init(glsl_version);
     //------------------------------
-    float vertices[216] = {
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
 
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-    };
-    float texCoords[72] = {
-    0.0f, 0.0f,
-    1.0f, 0.0f,
-    1.0f, 1.0f,
-    1.0f, 1.0f,
-    0.0f, 1.0f,
-    0.0f, 0.0f,
-
-    0.0f, 0.0f,
-    1.0f, 0.0f,
-    1.0f, 1.0f,
-    1.0f, 1.0f,
-    0.0f, 1.0f,
-    0.0f, 0.0f,
-
-    1.0f, 0.0f,
-    1.0f, 1.0f,
-    0.0f, 1.0f,
-    0.0f, 1.0f,
-    0.0f, 0.0f,
-    1.0f, 0.0f,
-
-    1.0f, 0.0f,
-    1.0f, 1.0f,
-    0.0f, 1.0f,
-    0.0f, 1.0f,
-    0.0f, 0.0f,
-    1.0f, 0.0f,
-
-    0.0f, 1.0f,
-    1.0f, 1.0f,
-    1.0f, 0.0f,
-    1.0f, 0.0f,
-    0.0f, 0.0f,
-    0.0f, 1.0f,
-
-    0.0f, 1.0f,
-    1.0f, 1.0f,
-    1.0f, 0.0f,
-    1.0f, 0.0f,
-    0.0f, 0.0f,
-    0.0f, 1.0f
-    };
-    
     float lightCoords[1296] = {
     0.0000f, 0.0500f, 0.0000f,
     0.0000f, 0.0500f, 0.0000f,
@@ -841,30 +826,6 @@ int main() {
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    unsigned int vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-
-    unsigned int buffer;
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices),vertices,GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
-
-    // 法向量屬性
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    unsigned int texbuffer;
-    glGenBuffers(1, &texbuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, texbuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
-    //設置頂點紋理座標指針
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0);
-    glBindVertexArray(0);
 
     unsigned int lightVAO, lightVBO;
     glGenBuffers(1, &lightVBO);
@@ -954,6 +915,8 @@ int main() {
     model = glm::translate(model, glm::vec3(-18000.0f, -30000.0f, -3000.0f));
     PhysicsObject koharu1(model,koharu.localmax,koharu.localmin);
 
+    //glfwSetFramebufferSizeCallback(window, change_size);
+    //glfwSetCursorPosCallback(window, mouse_callback);
 
     float radius = 10.0f;
     glm :: vec3 clear_color = glm::vec3(1.0, 0.7, 0.97);
@@ -966,6 +929,15 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        if(!io.WantCaptureMouse){
+            if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+            {
+                glfwSetCursor(window, cursorCallback.grabCursor);
+            }else{
+                glfwSetCursor(window, cursorCallback.hoverCursor);
+            }    
+        }
+
         float f  = 0.0f;
         ImGui::Begin("Hello, ImGui!");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
@@ -974,14 +946,13 @@ int main() {
 
         glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
 
         glUseProgram(shader);
         processInput(window);
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        glfwSetCursorPosCallback(window, mouse_callback);
-        glfwSetFramebufferSizeCallback(window, change_size);
         koharu1.UpdatePhysics(deltaTime,model);
 
         glm::mat4 projection = glm::mat4(1.0f);
@@ -999,21 +970,13 @@ int main() {
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
         //glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
         glUniform3f(lightDirLoc, lightDir.x, lightDir.y, lightDir.z);
-/*
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-        glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-*/
+
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
         glCullFace(GL_BACK);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        //glDisable(GL_CULL_FACE);
         koharu.Draw(shader);
         glEnable(GL_CULL_FACE);
         glDisable(GL_BLEND);
@@ -1045,7 +1008,6 @@ int main() {
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glDisable(GL_DEPTH_TEST);
-        clear_color = glm::vec3(1.0f, 0.7f, 0.97f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(Fbo);
@@ -1063,6 +1025,8 @@ int main() {
     glDeleteProgram(outlineShader);
     glDeleteProgram(Fbo);
     glDeleteProgram(lightShader);
+    glfwDestroyCursor(cursorCallback.grabCursor);
+    glfwDestroyCursor(cursorCallback.hoverCursor);
     glfwTerminate();
     return 0;
 }

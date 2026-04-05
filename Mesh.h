@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include<iostream>
-#include <GL/glew.h>
+#include <glad/gl.h>
 #include <GLFW/glfw3.h>
 
 struct Vertex {
