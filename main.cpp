@@ -276,6 +276,41 @@ void c_mouse_button_callback(GLFWwindow*window, int button, int action, int mods
         global_cursor_callback->mouse_buuton_callback(window, button, action, mods);
     }
 }
+class  Infinite_Grid{
+public:
+    unsigned int gridVAO, gridVBO;
+    void  init_Infinite_Grid(){
+        float gridVertices[] = {
+            -100.0f, -1.5f, 100.0f,
+            100.0f, -1.5f, 100.0f,
+            -100.0f, -1.5f, -100.0f,
+            100.0f, -1.5f, -100.0f,
+        };
+        glGenVertexArrays(1, &gridVAO);
+        glGenBuffers(1, &gridVBO);
+        glBindVertexArray(gridVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, gridVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(gridVertices), gridVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glBindVertexArray(0);
+    }
+    void Draw_infinite_grid(unsigned int Gridshader,glm::mat4& view,glm::mat4& projection){
+        glUseProgram(Gridshader);
+        glUniformMatrix4fv(glGetUniformLocation(Gridshader, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(Gridshader, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniform3f(glGetUniformLocation(Gridshader, "cameraPos"), cameraPos.x, cameraPos.y, cameraPos.z);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glBindVertexArray(gridVAO);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glBindVertexArray(0);
+
+        glDisable(GL_BLEND);
+    }
+};
 int main() {
     setenv("XCURSOR_THEME", "Adwaita", 1);
     setenv("XCURSOR_SIZE", "24", 1);
@@ -348,6 +383,9 @@ int main() {
     ImGui_ImplOpenGL3_Init(glsl_version);
     //------------------------------
 
+    Infinite_Grid grid;
+    grid.init_Infinite_Grid();
+
     unsigned int fbo;
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -378,6 +416,8 @@ int main() {
     unsigned int Fbo = CreateShader(fbosource.VertexSource, fbosource.FragmentSource);
     glUseProgram(Fbo);
     glUniform1i(glGetUniformLocation(Fbo, "screenTexture"), 0);
+    ShaderProgramSource Gridsource = ParseShader("/home/kiyotaka/atcoder/QtOpengl/res/shaders/Grid.shader");
+    unsigned int Gridshader = CreateShader(Gridsource.VertexSource, Gridsource.FragmentSource);
 
     //圖像y軸翻轉
     stbi_set_flip_vertically_on_load(true);
@@ -394,6 +434,9 @@ int main() {
     int viewPosLoc = glGetUniformLocation(shader, "viewPos");
     glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);
     int lightDirLoc = glGetUniformLocation(shader, "lightDir");
+    int u_useRimLoc = glGetUniformLocation(shader, "u_useRim");
+    int u_rimPowerLoc = glGetUniformLocation(shader, "u_rimPower");
+    
 
 
     model = glm::scale(model, glm::vec3(0.00005f));
@@ -403,7 +446,8 @@ int main() {
 
     //glfwSetFramebufferSizeCallback(window, change_size);
     //glfwSetCursorPosCallback(window, mouse_callback);
-
+    bool u_useRim = false;
+    float u_rimPower = 2.0f;
     float radius = 3.0f;
     glm :: vec3 clear_color = glm::vec3(1.0, 0.7, 0.97);
     while (!glfwWindowShouldClose(window)) {
@@ -465,6 +509,11 @@ int main() {
         ImGui::Begin("Hello, ImGui!");
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
         ImGui::ColorEdit3("Background Color", glm::value_ptr(clear_color));
+
+        ImGui::Checkbox("Enter Rim Light", &u_useRim);
+        if(u_useRim){
+            ImGui::SliderFloat("Rim Power", &u_rimPower, 0.1f, 20.0f);
+        }
         ImGui::End();
 
         glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
@@ -472,14 +521,12 @@ int main() {
         glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
 
         glUseProgram(shader);
-        //processInput(window);
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         koharu1.UpdatePhysics(deltaTime,model);
 
         glm::mat4 projection = glm::mat4(1.0f);
-        //glm::mat4 view;
 
         //view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
@@ -489,17 +536,22 @@ int main() {
 
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        //int lightPosLoc = glGetUniformLocation(shader, "lightPos");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-        //glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
         glUniform3f(lightDirLoc, lightDir.x, lightDir.y, lightDir.z);
 
+        grid.Draw_infinite_grid(Gridshader, view, projection);
+
+        glUseProgram(shader);
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
         glCullFace(GL_BACK);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glUniform1f(u_useRimLoc, u_useRim);
+        glUniform1f(u_rimPowerLoc, u_rimPower);
+
         koharu.Draw(shader);
         glEnable(GL_CULL_FACE);
         glDisable(GL_BLEND);

@@ -36,6 +36,8 @@ uniform float ambientStrength;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform vec3 lightDir;
+uniform bool u_useRim;
+uniform float u_rimPower;
 float gamma = 2.2;
 
 void main()
@@ -85,6 +87,17 @@ void main()
    
    result += specular;
    //result = pow(result,vec3(1.0/gamma)); // Gamma校正
+
+   if(u_useRim){
+
+      float rim = 1.0 -max(dot(viewDir,norm),0.0);
+
+      float rimIntensity = pow(rim, u_rimPower);
+
+      vec3 rimColor = vec3(1.0f, 0.7f, 0.97f);
+
+      result += rimIntensity * rimColor;
+   }
 
    // 7. 輸出最終顏色，並帶上它原本的透明度
    color = vec4(result, texColor.a);
