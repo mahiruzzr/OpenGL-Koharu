@@ -88,16 +88,5 @@ void main()
 
    // 7. 輸出最終顏色，並帶上它原本的透明度
    color = vec4(result, texColor.a);
-   // 計算亮度
-   float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722));
-
-   // 暫時把門檻從 1.0 降到 0.7，測試能不能抓到比較亮的部位
-   if(brightness > 0.7) {
-      BrightColor = vec4(result, 1.0);
-   } else {
-      BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
-   }
-   
-   
 }
 
