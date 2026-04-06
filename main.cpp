@@ -348,475 +348,6 @@ int main() {
     ImGui_ImplOpenGL3_Init(glsl_version);
     //------------------------------
 
-    float lightCoords[1296] = {
-    0.0000f, 0.0500f, 0.0000f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0250f, 0.0433f, 0.0000f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0217f, 0.0433f, 0.0125f,
-    0.0250f, 0.0433f, 0.0000f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0217f, 0.0433f, 0.0125f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0125f, 0.0433f, 0.0217f,
-    0.0217f, 0.0433f, 0.0125f,
-
-    0.0000f, 0.0500f, 0.0000f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0125f, 0.0433f, 0.0217f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0000f, 0.0433f, 0.0250f,
-    0.0125f, 0.0433f, 0.0217f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0000f, 0.0433f, 0.0250f,
-    0.0000f, 0.0500f, 0.0000f,
-    -0.0125f, 0.0433f, 0.0217f,
-    0.0000f, 0.0433f, 0.0250f,
-
-    0.0000f, 0.0500f, 0.0000f,
-    0.0000f, 0.0500f, 0.0000f,
-    -0.0125f, 0.0433f, 0.0217f,
-    0.0000f, 0.0500f, 0.0000f,
-    -0.0217f, 0.0433f, 0.0125f,
-    -0.0125f, 0.0433f, 0.0217f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0000f, 0.0500f, 0.0000f,
-    -0.0217f, 0.0433f, 0.0125f,
-    0.0000f, 0.0500f, 0.0000f,
-    -0.0250f, 0.0433f, 0.0000f,
-    -0.0217f, 0.0433f, 0.0125f,
-
-    0.0000f, 0.0500f, 0.0000f,
-    0.0000f, 0.0500f, 0.0000f,
-    -0.0250f, 0.0433f, 0.0000f,
-    0.0000f, 0.0500f, 0.0000f,
-    -0.0217f, 0.0433f, -0.0125f,
-    -0.0250f, 0.0433f, 0.0000f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0000f, 0.0500f, 0.0000f,
-    -0.0217f, 0.0433f, -0.0125f,
-    0.0000f, 0.0500f, 0.0000f,
-    -0.0125f, 0.0433f, -0.0217f,
-    -0.0217f, 0.0433f, -0.0125f,
-
-    0.0000f, 0.0500f, 0.0000f,
-    0.0000f, 0.0500f, 0.0000f,
-    -0.0125f, 0.0433f, -0.0217f,
-    0.0000f, 0.0500f, 0.0000f,
-    -0.0000f, 0.0433f, -0.0250f,
-    -0.0125f, 0.0433f, -0.0217f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0000f, 0.0500f, 0.0000f,
-    -0.0000f, 0.0433f, -0.0250f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0125f, 0.0433f, -0.0217f,
-    -0.0000f, 0.0433f, -0.0250f,
-
-    0.0000f, 0.0500f, 0.0000f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0125f, 0.0433f, -0.0217f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0217f, 0.0433f, -0.0125f,
-    0.0125f, 0.0433f, -0.0217f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0217f, 0.0433f, -0.0125f,
-    0.0000f, 0.0500f, 0.0000f,
-    0.0250f, 0.0433f, -0.0000f,
-    0.0217f, 0.0433f, -0.0125f,
-
-    0.0250f, 0.0433f, 0.0000f,
-    0.0217f, 0.0433f, 0.0125f,
-    0.0433f, 0.0250f, 0.0000f,
-    0.0217f, 0.0433f, 0.0125f,
-    0.0375f, 0.0250f, 0.0217f,
-    0.0433f, 0.0250f, 0.0000f,
-    0.0217f, 0.0433f, 0.0125f,
-    0.0125f, 0.0433f, 0.0217f,
-    0.0375f, 0.0250f, 0.0217f,
-    0.0125f, 0.0433f, 0.0217f,
-    0.0217f, 0.0250f, 0.0375f,
-    0.0375f, 0.0250f, 0.0217f,
-
-    0.0125f, 0.0433f, 0.0217f,
-    0.0000f, 0.0433f, 0.0250f,
-    0.0217f, 0.0250f, 0.0375f,
-    0.0000f, 0.0433f, 0.0250f,
-    0.0000f, 0.0250f, 0.0433f,
-    0.0217f, 0.0250f, 0.0375f,
-    0.0000f, 0.0433f, 0.0250f,
-    -0.0125f, 0.0433f, 0.0217f,
-    0.0000f, 0.0250f, 0.0433f,
-    -0.0125f, 0.0433f, 0.0217f,
-    -0.0217f, 0.0250f, 0.0375f,
-    0.0000f, 0.0250f, 0.0433f,
-
-    -0.0125f, 0.0433f, 0.0217f,
-    -0.0217f, 0.0433f, 0.0125f,
-    -0.0217f, 0.0250f, 0.0375f,
-    -0.0217f, 0.0433f, 0.0125f,
-    -0.0375f, 0.0250f, 0.0217f,
-    -0.0217f, 0.0250f, 0.0375f,
-    -0.0217f, 0.0433f, 0.0125f,
-    -0.0250f, 0.0433f, 0.0000f,
-    -0.0375f, 0.0250f, 0.0217f,
-    -0.0250f, 0.0433f, 0.0000f,
-    -0.0433f, 0.0250f, 0.0000f,
-    -0.0375f, 0.0250f, 0.0217f,
-
-    -0.0250f, 0.0433f, 0.0000f,
-    -0.0217f, 0.0433f, -0.0125f,
-    -0.0433f, 0.0250f, 0.0000f,
-    -0.0217f, 0.0433f, -0.0125f,
-    -0.0375f, 0.0250f, -0.0217f,
-    -0.0433f, 0.0250f, 0.0000f,
-    -0.0217f, 0.0433f, -0.0125f,
-    -0.0125f, 0.0433f, -0.0217f,
-    -0.0375f, 0.0250f, -0.0217f,
-    -0.0125f, 0.0433f, -0.0217f,
-    -0.0217f, 0.0250f, -0.0375f,
-    -0.0375f, 0.0250f, -0.0217f,
-
-    -0.0125f, 0.0433f, -0.0217f,
-    -0.0000f, 0.0433f, -0.0250f,
-    -0.0217f, 0.0250f, -0.0375f,
-    -0.0000f, 0.0433f, -0.0250f,
-    -0.0000f, 0.0250f, -0.0433f,
-    -0.0217f, 0.0250f, -0.0375f,
-    -0.0000f, 0.0433f, -0.0250f,
-    0.0125f, 0.0433f, -0.0217f,
-    -0.0000f, 0.0250f, -0.0433f,
-    0.0125f, 0.0433f, -0.0217f,
-    0.0217f, 0.0250f, -0.0375f,
-    -0.0000f, 0.0250f, -0.0433f,
-
-    0.0125f, 0.0433f, -0.0217f,
-    0.0217f, 0.0433f, -0.0125f,
-    0.0217f, 0.0250f, -0.0375f,
-    0.0217f, 0.0433f, -0.0125f,
-    0.0375f, 0.0250f, -0.0217f,
-    0.0217f, 0.0250f, -0.0375f,
-    0.0217f, 0.0433f, -0.0125f,
-    0.0250f, 0.0433f, -0.0000f,
-    0.0375f, 0.0250f, -0.0217f,
-    0.0250f, 0.0433f, -0.0000f,
-    0.0433f, 0.0250f, -0.0000f,
-    0.0375f, 0.0250f, -0.0217f,
-
-    0.0433f, 0.0250f, 0.0000f,
-    0.0375f, 0.0250f, 0.0217f,
-    0.0500f, 0.0000f, 0.0000f,
-    0.0375f, 0.0250f, 0.0217f,
-    0.0433f, 0.0000f, 0.0250f,
-    0.0500f, 0.0000f, 0.0000f,
-    0.0375f, 0.0250f, 0.0217f,
-    0.0217f, 0.0250f, 0.0375f,
-    0.0433f, 0.0000f, 0.0250f,
-    0.0217f, 0.0250f, 0.0375f,
-    0.0250f, 0.0000f, 0.0433f,
-    0.0433f, 0.0000f, 0.0250f,
-
-    0.0217f, 0.0250f, 0.0375f,
-    0.0000f, 0.0250f, 0.0433f,
-    0.0250f, 0.0000f, 0.0433f,
-    0.0000f, 0.0250f, 0.0433f,
-    0.0000f, 0.0000f, 0.0500f,
-    0.0250f, 0.0000f, 0.0433f,
-    0.0000f, 0.0250f, 0.0433f,
-    -0.0217f, 0.0250f, 0.0375f,
-    0.0000f, 0.0000f, 0.0500f,
-    -0.0217f, 0.0250f, 0.0375f,
-    -0.0250f, 0.0000f, 0.0433f,
-    0.0000f, 0.0000f, 0.0500f,
-
-    -0.0217f, 0.0250f, 0.0375f,
-    -0.0375f, 0.0250f, 0.0217f,
-    -0.0250f, 0.0000f, 0.0433f,
-    -0.0375f, 0.0250f, 0.0217f,
-    -0.0433f, 0.0000f, 0.0250f,
-    -0.0250f, 0.0000f, 0.0433f,
-    -0.0375f, 0.0250f, 0.0217f,
-    -0.0433f, 0.0250f, 0.0000f,
-    -0.0433f, 0.0000f, 0.0250f,
-    -0.0433f, 0.0250f, 0.0000f,
-    -0.0500f, 0.0000f, 0.0000f,
-    -0.0433f, 0.0000f, 0.0250f,
-
-    -0.0433f, 0.0250f, 0.0000f,
-    -0.0375f, 0.0250f, -0.0217f,
-    -0.0500f, 0.0000f, 0.0000f,
-    -0.0375f, 0.0250f, -0.0217f,
-    -0.0433f, 0.0000f, -0.0250f,
-    -0.0500f, 0.0000f, 0.0000f,
-    -0.0375f, 0.0250f, -0.0217f,
-    -0.0217f, 0.0250f, -0.0375f,
-    -0.0433f, 0.0000f, -0.0250f,
-    -0.0217f, 0.0250f, -0.0375f,
-    -0.0250f, 0.0000f, -0.0433f,
-    -0.0433f, 0.0000f, -0.0250f,
-
-    -0.0217f, 0.0250f, -0.0375f,
-    -0.0000f, 0.0250f, -0.0433f,
-    -0.0250f, 0.0000f, -0.0433f,
-    -0.0000f, 0.0250f, -0.0433f,
-    -0.0000f, 0.0000f, -0.0500f,
-    -0.0250f, 0.0000f, -0.0433f,
-    -0.0000f, 0.0250f, -0.0433f,
-    0.0217f, 0.0250f, -0.0375f,
-    -0.0000f, 0.0000f, -0.0500f,
-    0.0217f, 0.0250f, -0.0375f,
-    0.0250f, 0.0000f, -0.0433f,
-    -0.0000f, 0.0000f, -0.0500f,
-
-    0.0217f, 0.0250f, -0.0375f,
-    0.0375f, 0.0250f, -0.0217f,
-    0.0250f, 0.0000f, -0.0433f,
-    0.0375f, 0.0250f, -0.0217f,
-    0.0433f, 0.0000f, -0.0250f,
-    0.0250f, 0.0000f, -0.0433f,
-    0.0375f, 0.0250f, -0.0217f,
-    0.0433f, 0.0250f, -0.0000f,
-    0.0433f, 0.0000f, -0.0250f,
-    0.0433f, 0.0250f, -0.0000f,
-    0.0500f, 0.0000f, -0.0000f,
-    0.0433f, 0.0000f, -0.0250f,
-
-    0.0500f, 0.0000f, 0.0000f,
-    0.0433f, 0.0000f, 0.0250f,
-    0.0433f, -0.0250f, 0.0000f,
-    0.0433f, 0.0000f, 0.0250f,
-    0.0375f, -0.0250f, 0.0217f,
-    0.0433f, -0.0250f, 0.0000f,
-    0.0433f, 0.0000f, 0.0250f,
-    0.0250f, 0.0000f, 0.0433f,
-    0.0375f, -0.0250f, 0.0217f,
-    0.0250f, 0.0000f, 0.0433f,
-    0.0217f, -0.0250f, 0.0375f,
-    0.0375f, -0.0250f, 0.0217f,
-
-    0.0250f, 0.0000f, 0.0433f,
-    0.0000f, 0.0000f, 0.0500f,
-    0.0217f, -0.0250f, 0.0375f,
-    0.0000f, 0.0000f, 0.0500f,
-    0.0000f, -0.0250f, 0.0433f,
-    0.0217f, -0.0250f, 0.0375f,
-    0.0000f, 0.0000f, 0.0500f,
-    -0.0250f, 0.0000f, 0.0433f,
-    0.0000f, -0.0250f, 0.0433f,
-    -0.0250f, 0.0000f, 0.0433f,
-    -0.0217f, -0.0250f, 0.0375f,
-    0.0000f, -0.0250f, 0.0433f,
-
-    -0.0250f, 0.0000f, 0.0433f,
-    -0.0433f, 0.0000f, 0.0250f,
-    -0.0217f, -0.0250f, 0.0375f,
-    -0.0433f, 0.0000f, 0.0250f,
-    -0.0375f, -0.0250f, 0.0217f,
-    -0.0217f, -0.0250f, 0.0375f,
-    -0.0433f, 0.0000f, 0.0250f,
-    -0.0500f, 0.0000f, 0.0000f,
-    -0.0375f, -0.0250f, 0.0217f,
-    -0.0500f, 0.0000f, 0.0000f,
-    -0.0433f, -0.0250f, 0.0000f,
-    -0.0375f, -0.0250f, 0.0217f,
-
-    -0.0500f, 0.0000f, 0.0000f,
-    -0.0433f, 0.0000f, -0.0250f,
-    -0.0433f, -0.0250f, 0.0000f,
-    -0.0433f, 0.0000f, -0.0250f,
-    -0.0375f, -0.0250f, -0.0217f,
-    -0.0433f, -0.0250f, 0.0000f,
-    -0.0433f, 0.0000f, -0.0250f,
-    -0.0250f, 0.0000f, -0.0433f,
-    -0.0375f, -0.0250f, -0.0217f,
-    -0.0250f, 0.0000f, -0.0433f,
-    -0.0217f, -0.0250f, -0.0375f,
-    -0.0375f, -0.0250f, -0.0217f,
-
-    -0.0250f, 0.0000f, -0.0433f,
-    -0.0000f, 0.0000f, -0.0500f,
-    -0.0217f, -0.0250f, -0.0375f,
-    -0.0000f, 0.0000f, -0.0500f,
-    -0.0000f, -0.0250f, -0.0433f,
-    -0.0217f, -0.0250f, -0.0375f,
-    -0.0000f, 0.0000f, -0.0500f,
-    0.0250f, 0.0000f, -0.0433f,
-    -0.0000f, -0.0250f, -0.0433f,
-    0.0250f, 0.0000f, -0.0433f,
-    0.0217f, -0.0250f, -0.0375f,
-    -0.0000f, -0.0250f, -0.0433f,
-
-    0.0250f, 0.0000f, -0.0433f,
-    0.0433f, 0.0000f, -0.0250f,
-    0.0217f, -0.0250f, -0.0375f,
-    0.0433f, 0.0000f, -0.0250f,
-    0.0375f, -0.0250f, -0.0217f,
-    0.0217f, -0.0250f, -0.0375f,
-    0.0433f, 0.0000f, -0.0250f,
-    0.0500f, 0.0000f, -0.0000f,
-    0.0375f, -0.0250f, -0.0217f,
-    0.0500f, 0.0000f, -0.0000f,
-    0.0433f, -0.0250f, -0.0000f,
-    0.0375f, -0.0250f, -0.0217f,
-
-    0.0433f, -0.0250f, 0.0000f,
-    0.0375f, -0.0250f, 0.0217f,
-    0.0250f, -0.0433f, 0.0000f,
-    0.0375f, -0.0250f, 0.0217f,
-    0.0217f, -0.0433f, 0.0125f,
-    0.0250f, -0.0433f, 0.0000f,
-    0.0375f, -0.0250f, 0.0217f,
-    0.0217f, -0.0250f, 0.0375f,
-    0.0217f, -0.0433f, 0.0125f,
-    0.0217f, -0.0250f, 0.0375f,
-    0.0125f, -0.0433f, 0.0217f,
-    0.0217f, -0.0433f, 0.0125f,
-
-    0.0217f, -0.0250f, 0.0375f,
-    0.0000f, -0.0250f, 0.0433f,
-    0.0125f, -0.0433f, 0.0217f,
-    0.0000f, -0.0250f, 0.0433f,
-    0.0000f, -0.0433f, 0.0250f,
-    0.0125f, -0.0433f, 0.0217f,
-    0.0000f, -0.0250f, 0.0433f,
-    -0.0217f, -0.0250f, 0.0375f,
-    0.0000f, -0.0433f, 0.0250f,
-    -0.0217f, -0.0250f, 0.0375f,
-    -0.0125f, -0.0433f, 0.0217f,
-    0.0000f, -0.0433f, 0.0250f,
-
-    -0.0217f, -0.0250f, 0.0375f,
-    -0.0375f, -0.0250f, 0.0217f,
-    -0.0125f, -0.0433f, 0.0217f,
-    -0.0375f, -0.0250f, 0.0217f,
-    -0.0217f, -0.0433f, 0.0125f,
-    -0.0125f, -0.0433f, 0.0217f,
-    -0.0375f, -0.0250f, 0.0217f,
-    -0.0433f, -0.0250f, 0.0000f,
-    -0.0217f, -0.0433f, 0.0125f,
-    -0.0433f, -0.0250f, 0.0000f,
-    -0.0250f, -0.0433f, 0.0000f,
-    -0.0217f, -0.0433f, 0.0125f,
-
-    -0.0433f, -0.0250f, 0.0000f,
-    -0.0375f, -0.0250f, -0.0217f,
-    -0.0250f, -0.0433f, 0.0000f,
-    -0.0375f, -0.0250f, -0.0217f,
-    -0.0217f, -0.0433f, -0.0125f,
-    -0.0250f, -0.0433f, 0.0000f,
-    -0.0375f, -0.0250f, -0.0217f,
-    -0.0217f, -0.0250f, -0.0375f,
-    -0.0217f, -0.0433f, -0.0125f,
-    -0.0217f, -0.0250f, -0.0375f,
-    -0.0125f, -0.0433f, -0.0217f,
-    -0.0217f, -0.0433f, -0.0125f,
-
-    -0.0217f, -0.0250f, -0.0375f,
-    -0.0000f, -0.0250f, -0.0433f,
-    -0.0125f, -0.0433f, -0.0217f,
-    -0.0000f, -0.0250f, -0.0433f,
-    -0.0000f, -0.0433f, -0.0250f,
-    -0.0125f, -0.0433f, -0.0217f,
-    -0.0000f, -0.0250f, -0.0433f,
-    0.0217f, -0.0250f, -0.0375f,
-    -0.0000f, -0.0433f, -0.0250f,
-    0.0217f, -0.0250f, -0.0375f,
-    0.0125f, -0.0433f, -0.0217f,
-    -0.0000f, -0.0433f, -0.0250f,
-
-    0.0217f, -0.0250f, -0.0375f,
-    0.0375f, -0.0250f, -0.0217f,
-    0.0125f, -0.0433f, -0.0217f,
-    0.0375f, -0.0250f, -0.0217f,
-    0.0217f, -0.0433f, -0.0125f,
-    0.0125f, -0.0433f, -0.0217f,
-    0.0375f, -0.0250f, -0.0217f,
-    0.0433f, -0.0250f, -0.0000f,
-    0.0217f, -0.0433f, -0.0125f,
-    0.0433f, -0.0250f, -0.0000f,
-    0.0250f, -0.0433f, -0.0000f,
-    0.0217f, -0.0433f, -0.0125f,
-
-    0.0250f, -0.0433f, 0.0000f,
-    0.0217f, -0.0433f, 0.0125f,
-    0.0000f, -0.0500f, 0.0000f,
-    0.0217f, -0.0433f, 0.0125f,
-    0.0000f, -0.0500f, 0.0000f,
-    0.0000f, -0.0500f, 0.0000f,
-    0.0217f, -0.0433f, 0.0125f,
-    0.0125f, -0.0433f, 0.0217f,
-    0.0000f, -0.0500f, 0.0000f,
-    0.0125f, -0.0433f, 0.0217f,
-    0.0000f, -0.0500f, 0.0000f,
-    0.0000f, -0.0500f, 0.0000f,
-
-    0.0125f, -0.0433f, 0.0217f,
-    0.0000f, -0.0433f, 0.0250f,
-    0.0000f, -0.0500f, 0.0000f,
-    0.0000f, -0.0433f, 0.0250f,
-    0.0000f, -0.0500f, 0.0000f,
-    0.0000f, -0.0500f, 0.0000f,
-    0.0000f, -0.0433f, 0.0250f,
-    -0.0125f, -0.0433f, 0.0217f,
-    0.0000f, -0.0500f, 0.0000f,
-    -0.0125f, -0.0433f, 0.0217f,
-    -0.0000f, -0.0500f, 0.0000f,
-    0.0000f, -0.0500f, 0.0000f,
-
-    -0.0125f, -0.0433f, 0.0217f,
-    -0.0217f, -0.0433f, 0.0125f,
-    -0.0000f, -0.0500f, 0.0000f,
-    -0.0217f, -0.0433f, 0.0125f,
-    -0.0000f, -0.0500f, 0.0000f,
-    -0.0000f, -0.0500f, 0.0000f,
-    -0.0217f, -0.0433f, 0.0125f,
-    -0.0250f, -0.0433f, 0.0000f,
-    -0.0000f, -0.0500f, 0.0000f,
-    -0.0250f, -0.0433f, 0.0000f,
-    -0.0000f, -0.0500f, 0.0000f,
-    -0.0000f, -0.0500f, 0.0000f,
-
-    -0.0250f, -0.0433f, 0.0000f,
-    -0.0217f, -0.0433f, -0.0125f,
-    -0.0000f, -0.0500f, 0.0000f,
-    -0.0217f, -0.0433f, -0.0125f,
-    -0.0000f, -0.0500f, -0.0000f,
-    -0.0000f, -0.0500f, 0.0000f,
-    -0.0217f, -0.0433f, -0.0125f,
-    -0.0125f, -0.0433f, -0.0217f,
-    -0.0000f, -0.0500f, -0.0000f,
-    -0.0125f, -0.0433f, -0.0217f,
-    -0.0000f, -0.0500f, -0.0000f,
-    -0.0000f, -0.0500f, -0.0000f,
-
-    -0.0125f, -0.0433f, -0.0217f,
-    -0.0000f, -0.0433f, -0.0250f,
-    -0.0000f, -0.0500f, -0.0000f,
-    -0.0000f, -0.0433f, -0.0250f,
-    -0.0000f, -0.0500f, -0.0000f,
-    -0.0000f, -0.0500f, -0.0000f,
-    -0.0000f, -0.0433f, -0.0250f,
-    0.0125f, -0.0433f, -0.0217f,
-    -0.0000f, -0.0500f, -0.0000f,
-    0.0125f, -0.0433f, -0.0217f,
-    0.0000f, -0.0500f, -0.0000f,
-    -0.0000f, -0.0500f, -0.0000f,
-
-    0.0125f, -0.0433f, -0.0217f,
-    0.0217f, -0.0433f, -0.0125f,
-    0.0000f, -0.0500f, -0.0000f,
-    0.0217f, -0.0433f, -0.0125f,
-    0.0000f, -0.0500f, -0.0000f,
-    0.0000f, -0.0500f, -0.0000f,
-    0.0217f, -0.0433f, -0.0125f,
-    0.0250f, -0.0433f, -0.0000f,
-    0.0000f, -0.0500f, -0.0000f,
-    0.0250f, -0.0433f, -0.0000f,
-    0.0000f, -0.0500f, -0.0000f,
-    0.0000f, -0.0500f, -0.0000f,
-    };
     unsigned int fbo;
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -837,70 +368,19 @@ int main() {
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
-    unsigned int lightVAO, lightVBO;
-    glGenBuffers(1, &lightVBO);
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, lightVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(lightCoords), lightCoords, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    
     ShaderProgramSource source = ParseShader("/home/kiyotaka/atcoder/QtOpengl/res/shaders/Basic.shader");
     unsigned int shader = CreateShader(source.VertexSource,source.FragmentSource);
     glUseProgram(shader);
-    ShaderProgramSource lightSource = ParseShader("/home/kiyotaka/atcoder/QtOpengl/res/shaders/Light.shader");
-    unsigned int lightShader = CreateShader(lightSource.VertexSource, lightSource.FragmentSource);
-    glUseProgram(lightShader);
-    ShaderProgramSource Outline = ParseShader("/home/kiyotaka/atcoder/QtOpengl/res/shaders/Outline.shader");
-    unsigned int outlineShader = CreateShader(Outline.VertexSource, Outline.FragmentSource);
+    ShaderProgramSource Outlinesource = ParseShader("/home/kiyotaka/atcoder/QtOpengl/res/shaders/Outline.shader");
+    unsigned int outlineShader = CreateShader(Outlinesource.VertexSource, Outlinesource.FragmentSource);
     glUseProgram(outlineShader);
     ShaderProgramSource fbosource = ParseShader("/home/kiyotaka/atcoder/QtOpengl/res/shaders/Fbo.shader");
     unsigned int Fbo = CreateShader(fbosource.VertexSource, fbosource.FragmentSource);
     glUseProgram(Fbo);
     glUniform1i(glGetUniformLocation(Fbo, "screenTexture"), 0);
-    //生成紋理
-    unsigned int texture1,texture2;
-    glGenTextures(1, &texture1);
-    glBindTexture(GL_TEXTURE_2D, texture1);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     //圖像y軸翻轉
     stbi_set_flip_vertically_on_load(true);
-    
-    //加載圖片
-    int width,height,nrChannels;
-    unsigned char*data = stbi_load("/home/kiyotaka/atcoder/QtOpengl/images/container.png", &width, &height, &nrChannels, 0);
-    if(data){
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }else{
-        cout << "Failed to load texture" << endl;
-    }
-    stbi_image_free(data);
-
-    glGenTextures(1, &texture2);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-    data = stbi_load("/home/kiyotaka/atcoder/QtOpengl/images/awesomeface.png", &width, &height, &nrChannels, 0);
-    if(data){
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }else{
-        cout << "Failed to load texture" << endl;
-    }
-    stbi_image_free(data);
-    
-    glUseProgram(shader);
-    glUniform1i(glGetUniformLocation(shader, "texture1"), 0);
-    glUniform1i(glGetUniformLocation(shader, "texture2"), 1);
 
     glm::mat4 model = glm :: mat4(1.0f);
     glm::mat4 view = glm::mat4(1.0f);
@@ -910,15 +390,10 @@ int main() {
     int modelLoc = glGetUniformLocation(shader, "model");
     int viewLoc = glGetUniformLocation(shader, "view");
     int projectionLoc = glGetUniformLocation(shader, "projection");
-    //int lightPosLoc = glGetUniformLocation(shader, "lightPos");
     glUniform1f(glGetUniformLocation(shader, "ambientStrength"), 0.4f);
     int viewPosLoc = glGetUniformLocation(shader, "viewPos");
     glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);
     int lightDirLoc = glGetUniformLocation(shader, "lightDir");
-
-    glUseProgram(lightShader);
-    glUniform3f(glGetUniformLocation(lightShader, "lightColor"), 1.0f, 1.0f, 1.0f);
-    int lightModelLoc = glGetUniformLocation(lightShader, "model");
 
 
     model = glm::scale(model, glm::vec3(0.00005f));
@@ -1008,13 +483,13 @@ int main() {
 
         //view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-        //glm::vec3 lightPos = glm::vec3(1.6f*glm::sin(glfwGetTime()), 2.0f, 0.0f);
         glm::vec3 lightDir = glm::vec3(2.0f, -3.0f, 0.0f);
 
         glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);
 
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        //int lightPosLoc = glGetUniformLocation(shader, "lightPos");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
         //glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
         glUniform3f(lightDirLoc, lightDir.x, lightDir.y, lightDir.z);
@@ -1044,15 +519,6 @@ int main() {
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glEnable(GL_CULL_FACE);
 
-        glUseProgram(lightShader);
-        glBindVertexArray(lightVAO);
-        glm::mat4 modelLight = glm::mat4(1.0f);
-        //modelLight = glm::translate(modelLight, lightPos);
-        glUniformMatrix4fv(lightModelLoc, 1, GL_FALSE, glm::value_ptr(modelLight));
-        glUniformMatrix4fv(glGetUniformLocation(lightShader, "view"),1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(glGetUniformLocation(lightShader, "projection"),1, GL_FALSE, glm::value_ptr(projection));
-        //glDrawArrays(GL_TRIANGLE_FAN, 0, 432);
-
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glDisable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -1071,7 +537,6 @@ int main() {
     glDeleteProgram(shader);
     glDeleteProgram(outlineShader);
     glDeleteProgram(Fbo);
-    glDeleteProgram(lightShader);
     glfwDestroyCursor(cursorCallback.grabCursor);
     glfwDestroyCursor(cursorCallback.hoverCursor);
     glfwTerminate();

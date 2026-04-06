@@ -32,8 +32,6 @@ in vec3 Normal;
 in vec3 FragPos;
 
 uniform sampler2D texture_diffuse1;
-//uniform sampler2D texture1;
-//uniform sampler2D texture2;
 uniform float ambientStrength;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
