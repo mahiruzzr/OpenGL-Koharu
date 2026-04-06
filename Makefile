@@ -8,7 +8,7 @@ EXE = main
 CXXFLAGS = -I. -I./imgui -I./imgui/backends -I/usr/local/include -I./glad_output/include -DIMGUI_IMPL_OPENGL_LOADER_CUSTOM -Wall -Wformat
 
 # 連結時需要的外部函式庫 (-l)
-LIBS = -L/usr/local/lib -lglfw -lGL -lassimp
+LIBS = -L/usr/local/lib -lglfw -lGL -lassimp -lX11 -lXcursor -lXfixes
 
 # 所有的原始碼檔案 (.cpp)
 SOURCES = main.cpp \

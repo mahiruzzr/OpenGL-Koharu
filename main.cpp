@@ -2,8 +2,14 @@
 #define GLFW_INCLUDE_NONE
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_X11
+#include <GLFW/glfw3native.h>
+#include <X11/Xlib.h>
 #include <iostream>
 #define GLM_FORCE_XYZW_ONLY
+#include <X11/Xcursor/Xcursor.h>
+#include <X11/Xlib.h>
+#include <X11/extensions/Xfixes.h>
 
 #include "Mesh.h"
 #include "Model.h"
@@ -107,7 +113,7 @@ void processInput(GLFWwindow *window){
 }
 float lastX = 400, lastY = 300;
 bool firstMouse = true;
-float yaw = -90.0f;
+float yaw = 90.0f;
 float pitch = 0.0f;
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
@@ -227,8 +233,8 @@ public:
     bool isMouseInWindow = false;
 
     void load_cursors(){
-        hoverCursor = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
-        
+        hoverCursor = glfwCreateStandardCursor(GLFW_POINTING_HAND_CURSOR);
+
         int width,height,channels;
         unsigned char*data = stbi_load("/home/kiyotaka/atcoder/QtOpengl/images/swipe.png",&width,&height,&channels,4);
         if(data){
@@ -273,6 +279,7 @@ void c_mouse_button_callback(GLFWwindow*window, int button, int action, int mods
 int main() {
     setenv("XCURSOR_THEME", "Adwaita", 1);
     setenv("XCURSOR_SIZE", "24", 1);
+    setenv("XCURSOR_PATH", "/usr/share/icons", 1);
     glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
     if (!glfwInit()) return -1;
 
@@ -288,10 +295,14 @@ int main() {
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
+
     if (!gladLoadGL(glfwGetProcAddress)) {
     cout << "GLAD 初始化失敗！" << endl;
     return -1;
     }
+
+    Display* display = glfwGetX11Display();
+    Window xwindow = glfwGetX11Window(window);
 
     glfwWindowHint(GLFW_SAMPLES, 4);
     glEnable(GL_MULTISAMPLE);
@@ -322,7 +333,7 @@ int main() {
     //------------------------------
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     io.MouseDrawCursor = false;
     (void)io;
     //設置ImGui樣式
@@ -918,7 +929,7 @@ int main() {
     //glfwSetFramebufferSizeCallback(window, change_size);
     //glfwSetCursorPosCallback(window, mouse_callback);
 
-    float radius = 10.0f;
+    float radius = 3.0f;
     glm :: vec3 clear_color = glm::vec3(1.0, 0.7, 0.97);
     while (!glfwWindowShouldClose(window)) {
         
@@ -930,13 +941,42 @@ int main() {
         ImGui::NewFrame();
 
         if(!io.WantCaptureMouse){
+            double xpos, ypos;
+
+            glfwGetCursorPos(window, &xpos, &ypos);
             if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
             {
                 glfwSetCursor(window, cursorCallback.grabCursor);
+                if(firstMouse){
+                    lastX = xpos;
+                    lastY = ypos;
+                    firstMouse = false;
+                }
+                float xoffest = xpos - lastX;
+                float yoffest = lastY - ypos;
+                lastX = xpos;
+                lastY = ypos;
+
+                float sensitivity = 0.2f;
+                yaw += xoffest * sensitivity;
+                pitch += yoffest * sensitivity;
+
+                if(pitch > 89.0f)
+                    pitch = 89.0f;
+                if(pitch < -89.0f)
+                    pitch = -89.0f;
             }else{
                 glfwSetCursor(window, cursorCallback.hoverCursor);
+                firstMouse = true;
             }    
         }
+
+        float camx = radius * glm::cos(glm::radians(pitch))*glm::cos(glm::radians(yaw));
+        float camy = radius * glm::sin(glm::radians(pitch));
+        float camz = radius * glm::cos(glm::radians(pitch))*glm::sin(glm::radians(yaw));
+        glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
+        cameraPos = target + glm::vec3(camx, camy, camz);
+        view = glm::lookAt(cameraPos, target, cameraUp);
 
         float f  = 0.0f;
         ImGui::Begin("Hello, ImGui!");
@@ -949,16 +989,16 @@ int main() {
         glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
 
         glUseProgram(shader);
-        processInput(window);
+        //processInput(window);
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         koharu1.UpdatePhysics(deltaTime,model);
 
         glm::mat4 projection = glm::mat4(1.0f);
-        glm::mat4 view;
+        //glm::mat4 view;
 
-        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        //view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
         //glm::vec3 lightPos = glm::vec3(1.6f*glm::sin(glfwGetTime()), 2.0f, 0.0f);
         glm::vec3 lightDir = glm::vec3(2.0f, -3.0f, 0.0f);
@@ -1003,7 +1043,6 @@ int main() {
         glUniformMatrix4fv(lightModelLoc, 1, GL_FALSE, glm::value_ptr(modelLight));
         glUniformMatrix4fv(glGetUniformLocation(lightShader, "view"),1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(lightShader, "projection"),1, GL_FALSE, glm::value_ptr(projection));
-
         //glDrawArrays(GL_TRIANGLE_FAN, 0, 432);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -1030,3 +1069,10 @@ int main() {
     glfwTerminate();
     return 0;
 }
+
+
+// 舊（錯誤）：在 X11 作業系統層級強制隱藏游標，GLFW 的 glfwSetCursor() 完全失效
+//XFixesHideCursor(display, xwindow);
+//XFlush(display);
+
+// 修正：移除這兩行，改加說明注釋
