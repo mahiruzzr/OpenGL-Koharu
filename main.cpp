@@ -968,7 +968,15 @@ int main() {
             }else{
                 glfwSetCursor(window, cursorCallback.hoverCursor);
                 firstMouse = true;
-            }    
+            }  
+            if(io.MouseWheel != 0){
+                float zoomSensitivity = 0.1f;
+                radius -= io.MouseWheel * zoomSensitivity;
+                if(radius < 1.0f){
+                    radius = 1.0f;}
+                if(radius > 10.0f){
+                    radius = 10.0f;}
+            }   
         }
 
         float camx = radius * glm::cos(glm::radians(pitch))*glm::cos(glm::radians(yaw));
@@ -1069,10 +1077,3 @@ int main() {
     glfwTerminate();
     return 0;
 }
-
-
-// 舊（錯誤）：在 X11 作業系統層級強制隱藏游標，GLFW 的 glfwSetCursor() 完全失效
-//XFixesHideCursor(display, xwindow);
-//XFlush(display);
-
-// 修正：移除這兩行，改加說明注釋
