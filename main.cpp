@@ -419,9 +419,6 @@ int main() {
     ShaderProgramSource Gridsource = ParseShader("/home/kiyotaka/atcoder/QtOpengl/res/shaders/Grid.shader");
     unsigned int Gridshader = CreateShader(Gridsource.VertexSource, Gridsource.FragmentSource);
 
-    //圖像y軸翻轉
-    stbi_set_flip_vertically_on_load(true);
-
     glm::mat4 model = glm :: mat4(1.0f);
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);

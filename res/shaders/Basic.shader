@@ -45,7 +45,6 @@ void main()
 
    vec4 texColor = texture(texture_diffuse1, TexCoords);
    
-   // 2. 丟棄透明像素：如果是透明背景，直接跳過不畫！(解決黑色嘴巴塊)
    if(texColor.a < 1.0) {
        discard;
    }
@@ -86,7 +85,6 @@ void main()
    vec3 specular = specularStrength * toonSpec * lightColor;
    
    result += specular;
-   //result = pow(result,vec3(1.0/gamma)); // Gamma校正
 
    if(u_useRim){
 
