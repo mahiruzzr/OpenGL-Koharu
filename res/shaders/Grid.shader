@@ -29,13 +29,13 @@ void main(){
 
     float lineDist = min(gridDist.x, gridDist.y);
 
-    float lineAlpha= 1.0-smoothstep(0.0, 1.0, lineDist);
+    float lineAlpha= 1.0-smoothstep(0.0, 3.0, lineDist);
 
     float distToCamera = length(WorldPos - cameraPos);
 
     float fadeAlpha = 1.0 - smoothstep(5.0, 30.0, distToCamera);
 
-    vec3 gridColor = vec3(0.8f, 0.8f, 1.0f);
+    vec3 gridColor = vec3(0.8f, 0.6f, 0.98f);
 
     color = vec4(gridColor, lineAlpha * fadeAlpha);
 }
