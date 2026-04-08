@@ -14,6 +14,7 @@ struct Vertex {
 
 struct Texture {
     unsigned int id;
+    std::string name;
     std::string type;
     std::string path;
 };
@@ -23,9 +24,11 @@ public:
     std::vector<Vertex>       vertices;
     std::vector<unsigned int> indices;  // EBO 用的索引值
     std::vector<Texture>      textures;
+    std::string name; // 網格名稱
 
     // 建構子
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
+    Mesh(std::string name,std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
+        this->name = name;
         this->vertices = vertices;
         this->indices = indices;
         this->textures = textures;

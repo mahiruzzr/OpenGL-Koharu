@@ -52,42 +52,65 @@ class Model {
 public:
     // 這個模型包含的所有網格
     std::vector<Mesh> meshes;
+    bool isKoharu = false;
+    std::string target = "Object_3";
 
     // 建構子：傳入檔案路徑，立刻開始載入
     Model(std::string path) {
         loadModel(path);
+        if(path.find("wakamo") != std::string::npos){
+            isKoharu = false;
+        }else{
+            isKoharu = true;
+        }
     }
 
     glm::vec3 localmin = glm::vec3(std::numeric_limits<float>::max());
     glm::vec3 localmax = glm::vec3(std::numeric_limits<float>::lowest());
 
     // 繪製模型：迴圈呼叫每一個 Mesh 的 Draw
-    void Draw(unsigned int shaderProgram) {
+    void Draw(unsigned int shaderProgram){
         for(unsigned int i = 0; i < meshes.size(); i++) {
+            bool ishalo = false;
             bool isHalo = false;
+            bool isSingleSided = false;
+            if(!isKoharu && meshes[i].name == target){
+                continue;
+            }
             // 檢查這個 Mesh 的貼圖路徑，是否包含 "halo"
             for(unsigned int j = 0; j < meshes[i].textures.size(); j++) {
                 if(meshes[i].textures[j].path.find("halo") != std::string::npos) {
+                    ishalo = true;
+                    break;
+                }
+                if(meshes[i].textures[j].path.find("Halo") != std::string::npos) {
                     isHalo = true;
                     break;
                 }
+                if(meshes[i].textures[j].path.find("Trans") != std::string::npos) {
+                    isSingleSided = true;
+                    break;
+                }
             }
-            
-            if(!isHalo){
+            if(!ishalo && !isHalo && !isSingleSided){
                 glEnable(GL_CULL_FACE);
             }else{
                 glDisable(GL_CULL_FACE);
             }
             meshes[i].Draw(shaderProgram);
 
-            if(isHalo) {
+            if(ishalo){
                 glEnable(GL_CULL_FACE);
             }
+            }
         }
-    }
+    
     // 💡 新增：專門給 Outline Shader 用的 Draw
     void DrawOutlinePass(unsigned int shaderProgram) {
         for(unsigned int i = 0; i < meshes.size(); i++) {
+            if(!isKoharu && meshes[i].name == target){
+                continue;
+            }
             meshes[i].Draw(shaderProgram);
         }
     }
@@ -129,6 +152,12 @@ private:
         std::vector<unsigned int> indices;
         std::vector<Texture> textures;
 
+        std::string meshName = mesh->mName.C_Str();
+        if (meshName.empty()) {
+        // 如果 Assimp 沒有解析到名稱，用材質索引當備用名稱
+        meshName = "mesh_" + std::to_string(mesh->mMaterialIndex);
+        }
+
         // 1. 在這裡寫迴圈，抓取 vertices (座標、法線、UV)
         // ...
         for(unsigned int i=0;i<mesh->mNumVertices;i++){
@@ -160,51 +189,7 @@ private:
 
         }
         
-        
-        // 3. 在這裡處理材質與貼圖 (讀取路徑)
-        // ...
-/*
-        Texture t;
-        directory = std::string("/home/kiyotaka/atcoder/QtOpengl/model/koharu/blue_archive_-koharu-__cb_default_emotion/textures");
-        
-        t.type = "texture_diffuse";
-        t.path = std::string(directory + "/body_baseColor.png");
-        t.id =TextureFromFile(t.path.c_str());
-        textures.push_back(t);
-
-        t.type = "texture_diffuse";
-        t.path = std::string(directory + "/eye_brow_baseColor.png");
-        t.id =TextureFromFile(t.path.c_str());
-        textures.push_back(t);
-
-        t.type = "texture_diffuse";
-        t.path = std::string(directory + "/hair_baseColor.png");
-        t.id =TextureFromFile(t.path.c_str());
-        textures.push_back(t);
-        t.type = "texture_diffuse";
-        t.path = std::string(directory + "/halo_glow_baseColor.png");
-        t.id =TextureFromFile(t.path.c_str());
-        textures.push_back(t);
-
-        t.type = "texture_diffuse";
-        t.path = std::string(directory + "/material_baseColor.png");
-        t.id =TextureFromFile(t.path.c_str());
-        textures.push_back(t);
-
-        t.type = "texture_diffuse";
-        t.path = std::string(directory + "/mouth_baseColor.png");
-        t.id =TextureFromFile(t.path.c_str());
-        textures.push_back(t);
-
-        t.type = "texture_diffuse";
-        t.path = std::string(directory + "/outline_baseColor.png");
-        t.id =TextureFromFile(t.path.c_str());
-        textures.push_back(t);
-
-        return Mesh(vertices, indices, textures);
-}
-*/
-// 3. 處理材質與貼圖 (動態讀取真正屬於這個網格的貼圖)
+        // 3. 處理材質與貼圖 (動態讀取真正屬於這個網格的貼圖)
         if (mesh->mMaterialIndex >= 0) {
             aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
             aiString str;
@@ -228,6 +213,7 @@ private:
                 std::string fullPath = directory + "/" + str.C_Str();
                 
                 t.id = TextureFromFile(fullPath.c_str());
+                t.name = str.C_Str();
                 t.type = "texture_diffuse";
                 // 這裡維持 texture_diffuse，因為你的 Shader 變數是這個名字
                 t.path = fullPath;
@@ -238,6 +224,6 @@ private:
             }
         }
 
-        return Mesh(vertices, indices, textures);
+        return Mesh(meshName, vertices, indices, textures);
     }
 };

@@ -15,15 +15,29 @@ void main()
 #shader fragment
 #version 330 core
 layout(location=0) out vec4 FragColor;
-layout(location=1)out vec4 BrightColor;
 
 in vec2 TexCoords;
 uniform sampler2D screenTexture;
-uniform sampler2D blurTexture;
+uniform sampler2D normalTexture;
 
+const vec2 texOffset = vec2(0.5/800.0, 0.5/600.0);
 void main()
 {
     vec3 texColor = texture(screenTexture, TexCoords).rgb;
-    FragColor = vec4(texColor, 1.0);
+
+    vec3 n =texture(normalTexture, TexCoords+vec2(0.0, texOffset.y)).rgb;
+    vec3 s =texture(normalTexture, TexCoords-vec2(0.0, texOffset.y)).rgb;
+    vec3 e =texture(normalTexture, TexCoords+vec2(texOffset.x, 0.0)).rgb;
+    vec3 w =texture(normalTexture, TexCoords-vec2(texOffset.x, 0.0)).rgb;
+
+    vec3 edge = abs(n - s) + abs(e - w);
+
+    float edgeStrength = length(edge);
+
+    if(edgeStrength > 4.0){
+        FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    }else{
+        FragColor = vec4(texColor, 1.0);
+    }
 
 }

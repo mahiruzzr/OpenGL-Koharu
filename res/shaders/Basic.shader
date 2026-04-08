@@ -26,7 +26,7 @@ void main()
 #version 330 core 
 
 layout(location = 0) out vec4 color;
-layout (location = 1) out vec4 BrightColor;
+layout(location=1) out vec4 NormalColor;
 in vec2 TexCoords;
 in vec3 Normal;
 in vec3 FragPos;
@@ -51,9 +51,6 @@ void main()
 
    vec3 lightColor = vec3(1.0, 1.0, 1.0); // 白色光源
    
-   // 3. 環境光 (Ambient)
-   vec3 ambient = ambientStrength * lightColor;
-   
    // 4. 漫反射 (Diffuse)
    vec3 norm = normalize(Normal);
    vec3 lightDirNorm = normalize(-lightDir); // 注意這裡是 -lightDir，因為我們想要從光源指向片段的方向
@@ -61,30 +58,16 @@ void main()
 
    float toonIntensity;
 
-   if(diff >0.95){
-         toonIntensity = 1.0;
-   } else if(diff > 0.5){
-         toonIntensity = 0.7;
-   }else if(diff > 0.25){
-         toonIntensity = 0.5;
-   }else{
-         toonIntensity = 0.3;
-   }
-
-   vec3 diffuse = toonIntensity * lightColor;
+   toonIntensity = smoothstep(0.34, 0.36, diff);
    
-   // 5. 注意這裡！一定要用 texColor.rgb (只取前三個顏色通道) 來跟 vec3 相乘
-   vec3 result = (ambient + diffuse) * texColor.rgb;
-   
-   // 6. 鏡面光 (Specular)
-   float specularStrength = 0.5f;
    vec3 viewDir = normalize(viewPos - FragPos);
-   vec3 reflectDir = reflect(-lightDirNorm, norm);
-   float spec = pow(max(dot(viewDir, reflectDir), 0.0), 16.0);
-   float toonSpec = smoothstep(0.5 - 0.01, 0.5 + 0.01, spec);
-   vec3 specular = specularStrength * toonSpec * lightColor;
    
-   result += specular;
+   vec3 baseColor = texColor.rgb;
+
+   vec3 shadowTint = baseColor * vec3(0.7, 0.7, 0.8); 
+   vec3 darkColor = texColor.rgb * shadowTint * 0.75;
+
+   vec3 result = mix(darkColor, baseColor, toonIntensity);
 
    if(u_useRim){
 
@@ -97,7 +80,12 @@ void main()
       result += rimIntensity * rimColor;
    }
 
+   float gamma = 2.2;
+   result = pow(result, vec3(1.0/gamma));
+
    // 7. 輸出最終顏色，並帶上它原本的透明度
    color = vec4(result, texColor.a);
+
+   NormalColor = vec4(norm * 0.5 + 0.5, 1.0); // 將法線從 [-1, 1] 映射到 [0, 1]
 }
 

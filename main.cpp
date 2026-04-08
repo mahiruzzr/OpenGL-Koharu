@@ -13,6 +13,7 @@
 
 #include "Mesh.h"
 #include "Model.h"
+#include "switchmodel.h"
 #include <vector>
 #include <vector>
 #include "tool/gui.h"
@@ -279,6 +280,7 @@ void c_mouse_button_callback(GLFWwindow*window, int button, int action, int mods
 class  Infinite_Grid{
 public:
     unsigned int gridVAO, gridVBO;
+    bool u_useInfinite_Grid= false;
     void  init_Infinite_Grid(){
         float gridVertices[] = {
             -100.0f, -1.5f, 100.0f,
@@ -305,7 +307,9 @@ public:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         glBindVertexArray(gridVAO);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        if(u_useInfinite_Grid){
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        }
         glBindVertexArray(0);
 
         glDisable(GL_BLEND);
@@ -321,6 +325,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
+    glfwWindowHint(GLFW_SAMPLES, 8);
     GLFWwindow* window = glfwCreateWindow(800, 600, " kiyotaka OpenGL", nullptr, nullptr);
     if (!window) {
         glfwTerminate();
@@ -339,11 +344,10 @@ int main() {
     Display* display = glfwGetX11Display();
     Window xwindow = glfwGetX11Window(window);
 
-    glfwWindowHint(GLFW_SAMPLES, 4);
-    glEnable(GL_MULTISAMPLE);
 
     cout << "OpenGL 版本: " << glGetString(GL_VERSION) << endl;
-    Model koharu("/home/kiyotaka/atcoder/QtOpengl/model/koharu/blue_archive_-koharu-__cb_default_emotion (1)/scene.gltf");
+
+    More_models models;
 
     cursor_enter_callback cursorCallback;
     cursorCallback.load_cursors();
@@ -389,21 +393,26 @@ int main() {
     unsigned int fbo;
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    unsigned int framebuffer;
-    glGenTextures(1, &framebuffer);
-    glBindTexture(GL_TEXTURE_2D, framebuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 800, 600, 0, GL_RGB, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebuffer, 0);
-
+    unsigned int framebuffer[2];
+    for(unsigned int i=0;i<2;i++){
+        glGenTextures(1, &framebuffer[i]);
+        glBindTexture(GL_TEXTURE_2D, framebuffer[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 800, 600, 0, GL_RGB, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+ i, GL_TEXTURE_2D, framebuffer[i], 0);
+    }
+    
     unsigned int rbo;
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
 
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    glDrawBuffers(2, attachments);
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     ShaderProgramSource source = ParseShader("/home/kiyotaka/atcoder/QtOpengl/res/shaders/Basic.shader");
@@ -434,12 +443,12 @@ int main() {
     int u_useRimLoc = glGetUniformLocation(shader, "u_useRim");
     int u_rimPowerLoc = glGetUniformLocation(shader, "u_rimPower");
     
-
-
-    model = glm::scale(model, glm::vec3(0.00005f));
-    model = glm::rotate(model,glm::radians(180.0f),glm::vec3(1.0f,0.0f,0.0f));
-    model = glm::translate(model, glm::vec3(-18000.0f, -30000.0f, -3000.0f));
-    PhysicsObject koharu1(model,koharu.localmax,koharu.localmin);
+    if(models.modelnames[models.current_model_index] == "koharu"){
+        model = glm::scale(model, glm::vec3(0.00005f));
+        model = glm::rotate(model,glm::radians(180.0f),glm::vec3(1.0f,0.0f,0.0f));
+        model = glm::translate(model, glm::vec3(-18000.0f, -30000.0f, -3000.0f));
+    }
+    PhysicsObject koharuPhys(model,models.current_model->localmax,models.current_model->localmin);
 
     //glfwSetFramebufferSizeCallback(window, change_size);
     //glfwSetCursorPosCallback(window, mouse_callback);
@@ -447,6 +456,8 @@ int main() {
     float u_rimPower = 2.0f;
     float radius = 3.0f;
     glm :: vec3 clear_color = glm::vec3(1.0, 0.7, 0.97);
+    glEnable(GL_MULTISAMPLE);
+    glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
     while (!glfwWindowShouldClose(window)) {
         
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -511,9 +522,29 @@ int main() {
         if(u_useRim){
             ImGui::SliderFloat("Rim Power", &u_rimPower, 0.1f, 20.0f);
         }
+        if(ImGui::Button("Next Model")){
+            models.SwitchModel();
+            model = glm::mat4(1.0f);
+
+            if(models.modelnames[models.current_model_index] == "koharu"){
+            model = glm::scale(model, glm::vec3(0.00005f));
+            model = glm::rotate(model,glm::radians(180.0f),glm::vec3(1.0f,0.0f,0.0f));
+            model = glm::translate(model, glm::vec3(-18000.0f, -30000.0f, -3000.0f));
+            koharuPhys.groundLevel = 1.5f;
+            }else if(models.modelnames[models.current_model_index] == "wakamo"){
+            model = glm::translate(model, glm::vec3(-0.25f, 0.0f, 0.0f));
+            model = glm::scale(model, glm::vec3(0.00005f));
+            model = glm::rotate(model,glm::radians(180.0f),glm::vec3(1.0f,0.0f,0.0f));
+            model = glm::translate(model, glm::vec3(-18000.0f, -30000.0f, -3000.0f));
+            koharuPhys.groundLevel = 1.7f;
+            }
+            koharuPhys.position = glm::vec3(model[3]);
+            koharuPhys.currentMax = models.current_model->localmax;
+            koharuPhys.currentMin = models.current_model->localmin;  
+        }
+        ImGui::Checkbox("Enter Infinite Grid", &grid.u_useInfinite_Grid);
         ImGui::End();
 
-        glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
 
@@ -521,13 +552,13 @@ int main() {
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        koharu1.UpdatePhysics(deltaTime,model);
+        koharuPhys.UpdatePhysics(deltaTime,model);
 
         glm::mat4 projection = glm::mat4(1.0f);
 
         //view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-        glm::vec3 lightDir = glm::vec3(2.0f, -3.0f, 0.0f);
+        glm::vec3 lightDir = glm::vec3(-1.0f, -1.0f, 0.5f);
 
         glUniform3f(viewPosLoc, cameraPos.x, cameraPos.y, cameraPos.z);
 
@@ -549,7 +580,7 @@ int main() {
         glUniform1f(u_useRimLoc, u_useRim);
         glUniform1f(u_rimPowerLoc, u_rimPower);
 
-        koharu.Draw(shader);
+        models.current_model->Draw(shader);
         glEnable(GL_CULL_FACE);
         glDisable(GL_BLEND);
 
@@ -562,7 +593,7 @@ int main() {
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         
         glDisable(GL_CULL_FACE);
-        koharu.DrawOutlinePass(outlineShader);
+        //models.current_model->DrawOutlinePass(outlineShader);
         glEnable(GL_CULL_FACE);
 
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -574,7 +605,12 @@ int main() {
 
         glUseProgram(Fbo);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, framebuffer);
+        glBindTexture(GL_TEXTURE_2D, framebuffer[0]);
+        glUniform1i(glGetUniformLocation(Fbo, "screenTexture"), 0);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, framebuffer[1]);
+        glUniform1i(glGetUniformLocation(Fbo, "normalTexture"), 1);
         renderQuad();
 
         ImGui::Render();
