@@ -16,6 +16,7 @@ void main(){
 #version 330 core
 
 layout(location = 0) out vec4 color;
+layout(location = 1) out vec4 NormalColor;
 in vec3 WorldPos;
 uniform vec3 cameraPos;
 
@@ -38,4 +39,5 @@ void main(){
     vec3 gridColor = vec3(0.8f, 0.6f, 0.98f);
 
     color = vec4(gridColor, lineAlpha * fadeAlpha);
+    NormalColor = vec4(0.5, 1.0, 0.5, 1.0);
 }

@@ -25,19 +25,23 @@ void main()
 {
     vec3 texColor = texture(screenTexture, TexCoords).rgb;
 
-    vec3 n =texture(normalTexture, TexCoords+vec2(0.0, texOffset.y)).rgb;
-    vec3 s =texture(normalTexture, TexCoords-vec2(0.0, texOffset.y)).rgb;
-    vec3 e =texture(normalTexture, TexCoords+vec2(texOffset.x, 0.0)).rgb;
-    vec3 w =texture(normalTexture, TexCoords-vec2(texOffset.x, 0.0)).rgb;
+    //vec3 n =texture(normalTexture, TexCoords+vec2(0.0, texOffset.y)).rgb;
+    //vec3 s =texture(normalTexture, TexCoords-vec2(0.0, texOffset.y)).rgb;
+    //vec3 e =texture(normalTexture, TexCoords+vec2(texOffset.x, 0.0)).rgb;
+    //vec3 w =texture(normalTexture, TexCoords-vec2(texOffset.x, 0.0)).rgb;
 
-    vec3 edge = abs(n - s) + abs(e - w);
+    //vec3 edge = abs(n - s) + abs(e - w);
 
-    float edgeStrength = length(edge);
+    //float edgeStrength = length(edge);
 
-    if(edgeStrength > 4.0){
-        FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-    }else{
-        FragColor = vec4(texColor, 1.0);
-    }
+    //edgeStrength = smoothstep(0.6, 0.85, edgeStrength);
+
+    //vec3 lineColor = vec3(0.0, 0.0, 0.0);
+    //vec3 result = mix(texColor, lineColor, edgeStrength);
+    
+    //float gamma = 2.2;
+    //result = pow(result, vec3(1.0 / gamma));
+
+    FragColor = vec4(texColor, 1.0);
 
 }

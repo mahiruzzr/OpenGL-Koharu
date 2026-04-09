@@ -532,12 +532,19 @@ int main() {
             model = glm::translate(model, glm::vec3(-18000.0f, -30000.0f, -3000.0f));
             koharuPhys.groundLevel = 1.5f;
             }else if(models.modelnames[models.current_model_index] == "wakamo"){
-            model = glm::translate(model, glm::vec3(-0.25f, 0.0f, 0.0f));
+            model = glm::translate(model, glm::vec3(-0.20f, 0.0f, 0.0f));
             model = glm::scale(model, glm::vec3(0.00005f));
             model = glm::rotate(model,glm::radians(180.0f),glm::vec3(1.0f,0.0f,0.0f));
             model = glm::translate(model, glm::vec3(-18000.0f, -30000.0f, -3000.0f));
             koharuPhys.groundLevel = 1.7f;
+            }else if (models.modelnames[models.current_model_index] == "azusa"){
+            model = glm::translate(model, glm::vec3(-0.15f, 0.0f, 0.0f));
+            model = glm::scale(model, glm::vec3(0.00005f));
+            model = glm::rotate(model,glm::radians(180.0f),glm::vec3(1.0f,0.0f,0.0f));
+            model = glm::translate(model, glm::vec3(-18000.0f, -30000.0f, -3000.0f));
+            koharuPhys.groundLevel = 1.5f;
             }
+            
             koharuPhys.position = glm::vec3(model[3]);
             koharuPhys.currentMax = models.current_model->localmax;
             koharuPhys.currentMin = models.current_model->localmin;  
@@ -593,7 +600,7 @@ int main() {
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         
         glDisable(GL_CULL_FACE);
-        //models.current_model->DrawOutlinePass(outlineShader);
+        models.current_model->DrawOutlinePass(outlineShader);
         glEnable(GL_CULL_FACE);
 
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -608,9 +615,9 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, framebuffer[0]);
         glUniform1i(glGetUniformLocation(Fbo, "screenTexture"), 0);
 
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, framebuffer[1]);
-        glUniform1i(glGetUniformLocation(Fbo, "normalTexture"), 1);
+        //glActiveTexture(GL_TEXTURE1);
+        //glBindTexture(GL_TEXTURE_2D, framebuffer[1]);
+        //glUniform1i(glGetUniformLocation(Fbo, "normalTexture"), 1);
         renderQuad();
 
         ImGui::Render();

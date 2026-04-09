@@ -12,10 +12,12 @@ class More_models{
     vector<string> modelnames = {
     "koharu",
     "wakamo",
+    "azusa",
     };
     vector<string> Modelpaths = {
     "/home/kiyotaka/atcoder/QtOpengl/model/koharu/blue_archive_-koharu-__cb_default_emotion (1)/scene.gltf",
     "/home/kiyotaka/atcoder/QtOpengl/model/koharu/blue_archive_-wakamo_swimsuit-/scene.gltf",
+    "/home/kiyotaka/atcoder/QtOpengl/model/koharu/blue_archive_-azusa-__chibi_default_emotion/scene.gltf",
     };
     int current_model_index = 0;
     Model* current_model = new Model(Modelpaths[current_model_index]);

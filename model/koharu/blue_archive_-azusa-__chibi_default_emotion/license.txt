@@ -1,0 +1,11 @@
+Model Information:
+* title:	[Blue Archive] -Azusa- | Chibi (Default emotion)
+* source:	https://sketchfab.com/3d-models/blue-archive-azusa-chibi-default-emotion-ff2fc15c35984d3ea69b277e02abc2d2
+* author:	VückyZ (https://sketchfab.com/vuckyz123)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "[Blue Archive] -Azusa- | Chibi (Default emotion)" (https://sketchfab.com/3d-models/blue-archive-azusa-chibi-default-emotion-ff2fc15c35984d3ea69b277e02abc2d2) by VückyZ (https://sketchfab.com/vuckyz123) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

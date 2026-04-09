@@ -16,7 +16,7 @@ out float Worldy;
 void main()
 {
     TexCoords = texCoords;
-    float outlineWidth = 50; // 調整輪廓寬度
+    float outlineWidth = 10; // 調整輪廓寬度
 
     vec3 fatterPos = vertices + (normal * outlineWidth);
     gl_Position = projection* view* model*vec4(fatterPos, 1.0);
