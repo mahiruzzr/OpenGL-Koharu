@@ -71,12 +71,14 @@ public:
     // 繪製模型：迴圈呼叫每一個 Mesh 的 Draw
     void Draw(unsigned int shaderProgram){
         for(unsigned int i = 0; i < meshes.size(); i++) {
+            //std::cout << "Drawing Mesh: " << meshes[i].name << std::endl;
             bool ishalo = false;
             bool isHalo = false;
             bool isSingleSided = false;
             if(!isKoharu && meshes[i].name == target){
                 continue;
             }
+            
             // 檢查這個 Mesh 的貼圖路徑，是否包含 "halo"
             for(unsigned int j = 0; j < meshes[i].textures.size(); j++) {
                 if(meshes[i].textures[j].path.find("halo") != std::string::npos) {

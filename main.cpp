@@ -281,6 +281,7 @@ class  Infinite_Grid{
 public:
     unsigned int gridVAO, gridVBO;
     bool u_useInfinite_Grid= false;
+    bool u_useBaseDisk = false;
     void  init_Infinite_Grid(){
         float gridVertices[] = {
             -100.0f, -1.5f, 100.0f,
@@ -310,6 +311,31 @@ public:
         if(u_useInfinite_Grid){
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         }
+        glBindVertexArray(0);
+
+        glDisable(GL_BLEND);
+    }
+    void Draw_BaseDisk(unsigned int BaseDiskshader, glm::mat4& view, glm::mat4& projection, glm::vec3& clear_color){
+        glUseProgram(BaseDiskshader);
+        glm::mat4 diskModel = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.15f, 0.0f));
+        glUniformMatrix4fv(glGetUniformLocation(BaseDiskshader, "model"), 1, GL_FALSE, glm::value_ptr(diskModel));
+        glUniformMatrix4fv(glGetUniformLocation(BaseDiskshader, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(BaseDiskshader, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniform3f(glGetUniformLocation(BaseDiskshader, "cameraPos"), cameraPos.x, cameraPos.y, cameraPos.z);
+        glUniform3f(glGetUniformLocation(BaseDiskshader, "u_bgColor"), clear_color.x, clear_color.y, clear_color.z);
+        glUniform1f(glGetUniformLocation(BaseDiskshader, "u_radius"), 8.0f);
+        glUniform1f(glGetUniformLocation(BaseDiskshader, "u_feather"), 3.0f);
+        glUniform1f(glGetUniformLocation(BaseDiskshader, "u_shadowRadius"), 4.0f);
+
+        
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glBindVertexArray(gridVAO);
+        if(u_useBaseDisk){
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        }
+
         glBindVertexArray(0);
 
         glDisable(GL_BLEND);
@@ -415,6 +441,26 @@ int main() {
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+    unsigned int matcapTexture;
+    glGenTextures(1, &matcapTexture);
+    glBindTexture(GL_TEXTURE_2D, matcapTexture);
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int mcWidth, mcHeight, channels;
+    unsigned char* mcData = stbi_load("/home/kiyotaka/atcoder/QtOpengl/images/Pink_MatCap.png", &mcWidth, &mcHeight, &channels, 0);
+    if(mcData)
+    {
+        GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+        glTexImage2D(GL_TEXTURE_2D, 0, format, mcWidth, mcHeight, 0, format, GL_UNSIGNED_BYTE, mcData);
+        stbi_image_free(mcData);
+    }else{
+        cout << "Failed to load matcap texture!" << endl;
+    }
+
     ShaderProgramSource source = ParseShader("/home/kiyotaka/atcoder/QtOpengl/res/shaders/Basic.shader");
     unsigned int shader = CreateShader(source.VertexSource,source.FragmentSource);
     glUseProgram(shader);
@@ -427,6 +473,9 @@ int main() {
     glUniform1i(glGetUniformLocation(Fbo, "screenTexture"), 0);
     ShaderProgramSource Gridsource = ParseShader("/home/kiyotaka/atcoder/QtOpengl/res/shaders/Grid.shader");
     unsigned int Gridshader = CreateShader(Gridsource.VertexSource, Gridsource.FragmentSource);
+    ShaderProgramSource BaseDisksource = ParseShader("/home/kiyotaka/atcoder/QtOpengl/res/shaders/BaseDisk.shader");
+    unsigned int BaseDiskshader = CreateShader(BaseDisksource.VertexSource, BaseDisksource.FragmentSource);
+
 
     glm::mat4 model = glm :: mat4(1.0f);
     glm::mat4 view = glm::mat4(1.0f);
@@ -459,7 +508,6 @@ int main() {
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
     while (!glfwWindowShouldClose(window)) {
-        
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         glEnable(GL_DEPTH_TEST);
 
@@ -550,6 +598,7 @@ int main() {
             koharuPhys.currentMin = models.current_model->localmin;  
         }
         ImGui::Checkbox("Enter Infinite Grid", &grid.u_useInfinite_Grid);
+        ImGui::Checkbox("Enter Base Disk", &grid.u_useBaseDisk);
         ImGui::End();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -575,6 +624,7 @@ int main() {
         glUniform3f(lightDirLoc, lightDir.x, lightDir.y, lightDir.z);
 
         grid.Draw_infinite_grid(Gridshader, view, projection);
+        grid.Draw_BaseDisk(BaseDiskshader, view, projection, clear_color);
 
         glUseProgram(shader);
         glStencilFunc(GL_ALWAYS, 1, 0xFF);

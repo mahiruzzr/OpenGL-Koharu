@@ -58,7 +58,7 @@ void main()
 
    float toonIntensity;
 
-   toonIntensity = smoothstep(0.34, 0.36, diff);
+   toonIntensity = smoothstep(0.35, 0.55, diff);
    
    vec3 viewDir = normalize(viewPos - FragPos);
    
@@ -88,4 +88,3 @@ void main()
 
    NormalColor = vec4(norm * 0.5 + 0.5, 1.0); // 將法線從 [-1, 1] 映射到 [0, 1]
 }
-
