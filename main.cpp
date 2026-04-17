@@ -26,7 +26,11 @@
 #include <cmath>
 #define STB_IMAGE_IMPLEMENTATION
 #include "tool/stb_image.h"
+#include "json.hpp"
 using namespace std;
+using json = nlohmann::json;
+
+std::ifstream f("scene.json");
 
 struct ShaderProgramSource{
     string VertexSource;
@@ -341,6 +345,7 @@ public:
         glDisable(GL_BLEND);
     }
 };
+
 int main() {
     setenv("XCURSOR_THEME", "Adwaita", 1);
     setenv("XCURSOR_SIZE", "24", 1);
@@ -505,6 +510,19 @@ int main() {
     float u_rimPower = 2.0f;
     float radius = 3.0f;
     glm :: vec3 clear_color = glm::vec3(1.0, 0.7, 0.97);
+
+    if(!f.is_open()){
+    std::cout << "Failed to open scene.json" << std::endl;
+    }else{
+    json data = json::parse(f);
+
+    float r = data["clear_color"][0];
+    float g = data["clear_color"][1];
+    float b = data["clear_color"][2];
+
+    glClearColor(r, g, b, 1.0f);
+    }
+
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
     while (!glfwWindowShouldClose(window)) {
@@ -602,7 +620,7 @@ int main() {
         ImGui::End();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
+        //glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
 
         glUseProgram(shader);
         float currentFrame = glfwGetTime();
